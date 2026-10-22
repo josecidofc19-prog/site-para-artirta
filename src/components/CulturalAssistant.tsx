@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { 
-  Sparkles, 
   X, 
   Send, 
   RotateCcw, 
@@ -10,7 +9,8 @@ import {
   HelpCircle, 
   ShieldCheck, 
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  MessageSquare
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Grant, VaultDocument } from '../types';
@@ -41,11 +41,13 @@ export const CulturalAssistant: React.FC = () => {
     activeApplication, 
     selectedProfile, 
     selectedGrantId,
-    user 
+    user,
+    assistantOpen,
+    setAssistantOpen
   } = useApp();
 
   const shouldReduceMotion = useReducedMotion();
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = assistantOpen;
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiAvailable, setApiAvailable] = useState<boolean | null>(null);
@@ -356,32 +358,9 @@ Consulte a página oficial para verificar eventuais comunicados de prorrogação
 
   return (
     <>
-      {/* Botão Flutuante (Posicionado logo acima do WhatsApp) */}
-      <div 
-        className="fixed bottom-20 sm:bottom-22 right-4 sm:right-6 z-40 flex flex-col items-end pointer-events-none"
-        role="region"
-        aria-label="Assistente Cultural do Cultura em Cena"
-      >
-        <motion.button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label={isOpen ? 'Fechar assistente cultural' : 'Abrir assistente cultural tira-dúvidas'}
-          aria-expanded={isOpen}
-          whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.02 }}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
-          className="pointer-events-auto group inline-flex items-center gap-2.5 px-4 py-2.5 sm:px-4.5 sm:py-3 rounded-full bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-semibold text-xs sm:text-sm shadow-lg shadow-red-950/20 dark:shadow-black/50 border border-red-500/30 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#121214] cursor-pointer"
-        >
-          <div className="relative">
-            <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-200 fill-amber-200/40 shrink-0" aria-hidden="true" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#991B1B]" />
-          </div>
-          <span className="tracking-tight whitespace-nowrap">Assistente Cultural</span>
-        </motion.button>
-      </div>
-
-      {/* Painel de Conversa Flutuante */}
+      {/* Painel de Conversa Flutuante acionado pela Central de Ajuda */}
       <AnimatePresence>
-        {isOpen && (
+        {assistantOpen && (
           <motion.div
             initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.96 }}
             animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
@@ -390,13 +369,13 @@ Consulte a página oficial para verificar eventuais comunicados de prorrogação
             role="dialog"
             aria-modal="true"
             aria-labelledby="assistant-panel-title"
-            className="fixed bottom-36 sm:bottom-38 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[620px] h-[560px] flex flex-col rounded-3xl bg-[#FAF7F2] dark:bg-[#1A1A1E] text-[#1C1917] dark:text-[#F5F3EF] border border-[#E6E0D5] dark:border-white/10 shadow-2xl overflow-hidden"
+            className="fixed bottom-20 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] max-h-[620px] h-[560px] flex flex-col rounded-3xl bg-[#FAF7F2] dark:bg-[#1A1A1E] text-[#1C1917] dark:text-[#F5F3EF] border border-[#E6E0D5] dark:border-white/10 shadow-2xl overflow-hidden"
           >
             {/* Cabeçalho */}
             <header className="p-4 bg-white dark:bg-[#121214] border-b border-[#E6E0D5] dark:border-white/10 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5 text-[#991B1B] dark:text-[#E4806F]" aria-hidden="true" />
+                  <MessageSquare className="w-5 h-5 text-[#991B1B] dark:text-[#E4806F]" aria-hidden="true" />
                 </div>
                 <div>
                   <h2 id="assistant-panel-title" className="font-editorial text-base sm:text-lg font-bold text-[#1C1917] dark:text-white leading-tight">
@@ -421,7 +400,7 @@ Consulte a página oficial para verificar eventuais comunicados de prorrogação
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => setAssistantOpen(false)}
                   title="Fechar"
                   className="p-2 rounded-xl text-[#78716C] dark:text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 cursor-pointer"
                   aria-label="Fechar painel do assistente"

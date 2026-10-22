@@ -1,6 +1,6 @@
 {
-  "summary": "Plano de implementação concluído com sucesso para o novo design da Fase 2 (Utopia, Open Props e Motion) nos arquivos index.css, CatalogPage.tsx e ChecklistPage.tsx.",
-  "updatedAt": "2026-10-14T04:16:48.840089876Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Plano de implementação para o Cultura em Cena v2.0, abrangendo identidade visual e design editorial contemporâneo, ferramentas do artista (emissão direta de certidões no DocUpdateModal e impressão limpa de dossiê no ChecklistPage), gestão granular de filtros com tags removíveis no CatalogPage, ribbon de métricas e filtros rápidos na Home, acessibilidade mobile WCAG 2.1 AA e estabilidade técnica com suporte a print:hidden e tratamento de favicon.",
+  "updatedAt":  "2026-10-22T05:51:41.139463882Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

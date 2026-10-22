@@ -9,12 +9,13 @@ import {
   ArrowUpDown, 
   Building, 
   MapPin, 
-  Sparkles, 
   AlertCircle,
   CheckCircle2,
   ChevronRight,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  LayoutGrid,
+  Rows3
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getGrantDeadlineInfo } from '../data/mockGrants';
@@ -44,6 +45,25 @@ export const CatalogPage: React.FC = () => {
   
   // Status padrão: "abertos"
   const [selectedStatus, setSelectedStatus] = useState<'abertos' | 'encerrados' | 'todos'>('abertos');
+
+  // Modo de visualização: cartões ou tabela
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    try {
+      const saved = localStorage.getItem('cec-catalog-view');
+      return saved === 'table' ? 'table' : 'cards';
+    } catch {
+      return 'cards';
+    }
+  });
+
+  const handleViewModeChange = (mode: 'cards' | 'table') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('cec-catalog-view', mode);
+    } catch {
+      // storage unavailable
+    }
+  };
   
   // Ordenação
   const [sortBy, setSortBy] = useState<'prazo' | 'valor' | 'publicacao'>('prazo');
@@ -453,7 +473,25 @@ export const CatalogPage: React.FC = () => {
               {selectedLegal !== 'all' && (
                 <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
                   Legal: {selectedLegal.toUpperCase()}
-                  <button onClick={() => setSelectedLegal('all')}><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
+                  <button onClick={() => setSelectedLegal('all')} aria-label="Remover filtro legal"><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
+                </span>
+              )}
+              {selectedValueRange !== 'all' && (
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
+                  Valor: {selectedValueRange === 'ate_30k' ? 'Até R$ 30 mil' : selectedValueRange === '30k_60k' ? 'R$ 30k a R$ 60k' : 'Acima de R$ 60k'}
+                  <button onClick={() => setSelectedValueRange('all')} aria-label="Remover filtro de valor"><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
+                </span>
+              )}
+              {selectedDeadlineRange !== 'all' && (
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
+                  Prazo: {selectedDeadlineRange === 'urgente_7d' ? 'Até 7 dias' : selectedDeadlineRange === 'proximo_15d' ? 'Até 15 dias' : 'Até 30 dias'}
+                  <button onClick={() => setSelectedDeadlineRange('all')} aria-label="Remover filtro de prazo"><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
+                </span>
+              )}
+              {searchTerm && (
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
+                  Busca: "{searchTerm}"
+                  <button onClick={() => setSearchTerm('')} aria-label="Remover busca"><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
                 </span>
               )}
             </div>
@@ -468,6 +506,43 @@ export const CatalogPage: React.FC = () => {
         )}
 
       </motion.div>
+
+      {/* Barra de Contagem e Alternador de Visualização */}
+      <div className="flex items-center justify-between gap-4 pt-2">
+        <p className="text-xs sm:text-sm text-[#78716C] dark:text-[#A8A29E]">
+          Exibindo <span className="font-semibold tabular-nums text-[#1C1917] dark:text-[#F5F3EF]">{filteredGrants.length}</span> {filteredGrants.length === 1 ? 'edital encontrado' : 'editais encontrados'}
+        </p>
+
+        {/* Alternador de visualização (visível a partir de telas médias) */}
+        <div className="hidden md:flex items-center p-1 rounded-lg bg-white dark:bg-[#1A1A1E] border border-[#E6E0D5] dark:border-white/10 text-xs">
+          <button
+            type="button"
+            onClick={() => handleViewModeChange('cards')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer ${
+              viewMode === 'cards'
+                ? 'bg-[#FAF7F2] dark:bg-white/10 text-[#1C1917] dark:text-[#F5F3EF] font-semibold shadow-2xs'
+                : 'text-[#78716C] dark:text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white'
+            }`}
+            aria-label="Visualização em cartões"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span>Cartões</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleViewModeChange('table')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer ${
+              viewMode === 'table'
+                ? 'bg-[#FAF7F2] dark:bg-white/10 text-[#1C1917] dark:text-[#F5F3EF] font-semibold shadow-2xs'
+                : 'text-[#78716C] dark:text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-white'
+            }`}
+            aria-label="Visualização em tabela"
+          >
+            <Rows3 className="w-3.5 h-3.5" />
+            <span>Tabela</span>
+          </button>
+        </div>
+      </div>
 
       {/* Lista de Resultados - Bento Grid de Editais */}
       {filteredGrants.length === 0 ? (
@@ -495,7 +570,91 @@ export const CatalogPage: React.FC = () => {
           </button>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <>
+          {/* Tabela Semântica para Telas Desktop (quando viewMode === 'table') */}
+          {viewMode === 'table' && (
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-[#E6E0D5] dark:border-white/10 bg-white dark:bg-[#1A1A1E] shadow-xs">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-[#E6E0D5] dark:border-white/10 bg-[#FAF7F2] dark:bg-white/5 text-[#78716C] dark:text-[#A8A29E] uppercase tracking-wider text-[11px]">
+                    <th className="py-3.5 px-4 font-semibold">Edital & Órgão</th>
+                    <th className="py-3.5 px-4 font-semibold">Área / Linguagem</th>
+                    <th className="py-3.5 px-4 font-semibold text-right">Aporte Máximo</th>
+                    <th className="py-3.5 px-4 font-semibold">Prazo de Inscrição</th>
+                    <th className="py-3.5 px-4 font-semibold">Fonte</th>
+                    <th className="py-3.5 px-4 font-semibold text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E6E0D5] dark:divide-white/5">
+                  {filteredGrants.map((grant) => {
+                    const { isClosed, label } = getGrantDeadlineInfo(grant.deadlineDate);
+                    const isCurrentApp = Boolean(activeApplication && activeApplication.grantId === grant.id);
+                    return (
+                      <tr key={grant.id} className="hover:bg-[#FAF7F2]/60 dark:hover:bg-white/5 transition-colors">
+                        <td className="py-4 px-4">
+                          <div className="font-semibold text-[#1C1917] dark:text-[#F5F3EF] text-sm">
+                            {grant.title}
+                          </div>
+                          <div className="text-xs text-[#78716C] dark:text-[#A8A29E] mt-0.5">
+                            {grant.issuingBody} · {grant.city ? `${grant.city}/${grant.state}` : grant.state || 'Nacional'}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-[#57534E] dark:text-[#D6D3D1]">
+                          <span className="font-medium text-[#1C1917] dark:text-[#F5F3EF]">{grant.artisticArea}</span>
+                          <span className="block text-[11px] text-[#78716C] dark:text-[#A8A29E]">{grant.sphere}</span>
+                        </td>
+                        <td className="py-4 px-4 text-right tabular-nums font-semibold text-[#1C1917] dark:text-[#F5F3EF]">
+                          R$ {grant.grantValue.toLocaleString('pt-BR')},00
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className={`inline-flex items-center gap-1 font-medium ${isClosed ? 'text-[#78716C]' : 'text-amber-700 dark:text-amber-400'}`}>
+                            <Clock className="w-3.5 h-3.5 shrink-0" />
+                            <span>{label}</span>
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-[11px] px-2 py-0.5 rounded-md font-medium border border-[#E6E0D5] dark:border-white/10 bg-[#FAF7F2] dark:bg-white/5 text-[#57534E] dark:text-[#D6D3D1]">
+                            {grant.verificationStatus === 'verified' ? 'Oficial Verificado' : grant.verificationStatus === 'pending_verification' ? 'Aguardando' : grant.verificationStatus === 'forecast' ? 'Previsão' : 'Didático'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedGrantId(grant.id);
+                                setCurrentView('grant_detail');
+                              }}
+                              className="px-2.5 py-1.5 rounded-lg border border-[#E6E0D5] dark:border-white/10 text-[#1C1917] dark:text-[#F5F3EF] hover:bg-[#FAF7F2] dark:hover:bg-white/5 text-xs font-medium cursor-pointer"
+                            >
+                              Detalhes
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isClosed}
+                              onClick={() => {
+                                if (isCurrentApp) {
+                                  setCurrentView('checklist');
+                                } else {
+                                  startPreparationForGrant(grant.id);
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold disabled:opacity-40 cursor-pointer shadow-xs"
+                            >
+                              {isClosed ? 'Encerrado' : (isCurrentApp ? 'Continuar' : 'Preparar')}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Modo Cartões (Visível quando viewMode === 'cards' ou sempre em telas móveis) */}
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${viewMode === 'table' ? 'md:hidden' : ''}`}>
           {filteredGrants.map((grant, index) => {
             const { isClosed, daysRemaining, label } = getGrantDeadlineInfo(grant.deadlineDate);
             const isCurrentApp = Boolean(activeApplication && activeApplication.grantId === grant.id);
@@ -538,7 +697,7 @@ export const CatalogPage: React.FC = () => {
                     )}
                     {grant.verificationStatus === 'demo' && (
                       <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300 border border-slate-200 dark:border-white/10 inline-flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-red-600" /> Modelo Didático
+                        <AlertCircle className="w-3 h-3 text-stone-500" /> Modelo Didático
                       </span>
                     )}
 
@@ -590,60 +749,61 @@ export const CatalogPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Rodapé do Card com Valor e Ações */}
-                <div className="pt-5 mt-5 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xs uppercase font-medium text-slate-400 block tracking-wider">
-                      Valor Previsto
-                    </span>
-                    <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">
-                      R$ {grant.grantValue.toLocaleString('pt-BR')},00
-                    </span>
-                  </div>
+                  {/* Rodapé do Card com Valor e Ações */}
+                  <div className="pt-5 mt-5 border-t border-[#E6E0D5] dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[11px] uppercase font-medium text-[#78716C] dark:text-[#A8A29E] block tracking-wider">
+                        Aporte Máximo
+                      </span>
+                      <span className="text-base sm:text-lg font-semibold text-[#1C1917] dark:text-[#F5F3EF] tabular-nums">
+                        R$ {grant.grantValue.toLocaleString('pt-BR')},00
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    {grant.officialUrl && (
-                      <a
-                        href={grant.officialUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer"
-                        title={`Acessar portal oficial (${grant.officialSource || grant.issuingBody})`}
-                        aria-label={`Acessar portal oficial de ${grant.title}`}
+                    <div className="flex items-center gap-2">
+                      {grant.officialUrl && (
+                        <a
+                          href={grant.officialUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 text-[#78716C] hover:text-[#991B1B] dark:hover:text-red-400 rounded-lg hover:bg-[#FAF7F2] dark:hover:bg-white/5 transition-colors min-h-[38px] min-w-[38px] flex items-center justify-center cursor-pointer"
+                          title={`Acessar portal oficial (${grant.officialSource || grant.issuingBody})`}
+                          aria-label={`Acessar portal oficial de ${grant.title}`}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGrantId(grant.id);
+                          setCurrentView('grant_detail');
+                        }}
+                        className="px-3 py-1.5 rounded-lg border border-[#E6E0D5] dark:border-white/10 text-xs font-semibold text-[#1C1917] dark:text-[#F5F3EF] hover:bg-[#FAF7F2] dark:hover:bg-white/5 transition-colors cursor-pointer min-h-[38px]"
                       >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => {
-                        setSelectedGrantId(grant.id);
-                        setCurrentView('grant_detail');
-                      }}
-                      className="btn-secondary px-3.5 py-1.5 text-xs focus-ring min-h-[38px]"
-                    >
-                      Detalhes
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => {
-                        if (isCurrentApp) {
-                          setCurrentView('checklist');
-                        } else {
-                          startPreparationForGrant(grant.id);
-                        }
-                      }}
-                      disabled={isClosed}
-                      className="btn-primary px-4 py-1.5 text-xs focus-ring min-h-[38px]"
-                    >
-                      {isClosed ? 'Encerrado' : (isCurrentApp ? 'Continuar' : 'Preparar')}
-                    </motion.button>
+                        Detalhes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isCurrentApp) {
+                            setCurrentView('checklist');
+                          } else {
+                            startPreparationForGrant(grant.id);
+                          }
+                        }}
+                        disabled={isClosed}
+                        className="px-4 py-1.5 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold disabled:opacity-40 transition-colors cursor-pointer min-h-[38px] shadow-xs"
+                      >
+                        {isClosed ? 'Encerrado' : (isCurrentApp ? 'Continuar' : 'Preparar')}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </>
       )}
 
     </div>

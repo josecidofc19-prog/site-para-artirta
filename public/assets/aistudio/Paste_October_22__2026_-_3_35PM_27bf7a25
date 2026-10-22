@@ -1,0 +1,780 @@
+# Prompt mestre — Redesign completo do Cultura em Cena
+
+## 1. Papel e objetivo
+
+Atue como um **Arquiteto de Software Sênior, Engenheiro Front-end e Especialista em UX/UI para plataformas de fomento cultural**, com experiência em React, TypeScript, Tailwind CSS, acessibilidade e design editorial.
+
+Você está trabalhando no projeto existente **Cultura em Cena**, disponível em:
+
+https://cultura-em-cena.ai.studio
+
+O projeto utiliza React, TypeScript, Tailwind CSS v4, Vite e Framer Motion.
+
+Sua missão é elevar significativamente a qualidade visual, a experiência de uso e a organização do produto, transformando o site em uma plataforma cultural com identidade própria, aparência profissional e acabamento editorial.
+
+O público principal são artistas independentes, músicos, bandas, atores, grupos de teatro e dança, artistas visuais e produtores culturais que precisam encontrar editais, organizar documentos e preparar inscrições. Empresas e organizações públicas continuam fazendo parte da plataforma, mas não devem disputar a atenção com os artistas na primeira tela.
+
+**Regra principal: melhore o projeto existente. Não crie outro site, não substitua a aplicação por uma landing page estática e não remova funcionalidades que já funcionam.**
+
+Antes de modificar qualquer arquivo, examine a estrutura do projeto, os componentes atuais, o AppContext, os tipos TypeScript, as rotas ou views, os dados de demonstração, os estilos e a lógica de persistência.
+
+Implemente as mudanças diretamente no código. Não se limite a sugerir melhorias ou apresentar exemplos isolados.
+
+---
+
+## 2. Direção de design e identidade visual
+
+### Conceito visual
+
+Abandone a aparência genérica de uma interface produzida automaticamente por IA. O Cultura em Cena deve parecer um produto cultural cuidadosamente projetado, com características editoriais, referências a documentos impressos e uma interface digital contemporânea.
+
+A inspiração deve combinar:
+
+- A organização visual de uma publicação editorial.
+- A materialidade de uma pasta de inscrição, um documento impresso ou uma prancheta de produção cultural.
+- A clareza funcional de um bom produto SaaS.
+- Uma interface acolhedora e acessível para pessoas que não possuem uma equipe profissional de produção cultural.
+
+Não transforme o site em um painel corporativo genérico. A personalidade visual deve vir dos dados reais da plataforma, dos documentos, dos editais e das etapas de inscrição.
+
+### Paleta de cores
+
+Use estas cores como base:
+
+- Fundo principal: `#FAF7F2`.
+- Superfícies e papel: `#FFFDF8`.
+- Superfícies secundárias: `#F2EEE7`.
+- Texto principal: `#1C1917`.
+- Texto secundário: `#57534E`.
+- Bordas: `#E6E0D5`.
+- Bordas de destaque: `#CFC7B8`.
+- Vermelho de ação: `#991B1B`.
+- Verde de status positivo: `#1E3A2F`.
+- Âmbar para prazos próximos: `#B45309`.
+
+No tema escuro, preserve a funcionalidade atual e adapte as cores para garantir contraste e legibilidade. O fundo do hero não pode ficar visualmente desconectado do restante da aplicação.
+
+O tema claro deve ser o padrão para novos visitantes. Se não existir uma escolha salva, inicie no tema claro, independentemente da preferência automática do sistema. Se o usuário escolher manualmente outro tema, mantenha essa escolha salva.
+
+### Tipografia
+
+Utilize:
+
+- **Newsreader:** títulos, destaques editoriais e wordmark.
+- **Plus Jakarta Sans:** texto de interface, navegação, formulários, botões e informações auxiliares.
+
+Mantenha a tipografia serifada expressiva nos títulos principais. Ela é um diferencial de identidade, não deve ser substituída por uma fonte genérica.
+
+Evite parágrafos excessivamente longos, textos com contraste insuficiente e o uso indiscriminado de letras maiúsculas.
+
+### Regras visuais obrigatórias
+
+Não utilize:
+
+- Ícones `Sparkles`.
+- Gradientes coloridos ou texto em gradiente.
+- `backdrop-blur`, exceto na Navbar quando realmente necessário.
+- Cartões excessivamente arredondados em formato de pílula.
+- Botões de ação com `rounded-full`; use `rounded-lg`.
+- Cards com cantos exagerados; use `rounded-2xl`.
+- Efeitos decorativos sem função.
+- Grandes áreas escuras em uma Home cujo restante utiliza marfim.
+- Valores monetários apresentados em fonte monoespaçada verde.
+- Alertas nativos por `window.alert`.
+- Aberturas de páginas por `window.open`.
+
+Evite animações gratuitas, elementos flutuantes que cobrem informações e excesso de componentes visuais repetidos.
+
+---
+
+## 3. Regras para proteger o projeto existente
+
+Antes de começar:
+
+1. Leia o `AppContext` e entenda como são gerenciados `grants`, `activeApplication`, `vaultDocuments` e `user`.
+2. Confira os tipos `Product`? Não crie tipos de domínio desnecessários nem altere contratos existentes sem necessidade. Preserve os tipos e interfaces já utilizados pelo projeto.
+3. Identifique as funções existentes de login de demonstração, navegação, filtragem, ordenação, gerenciamento de documentos, cálculo de prazos e abertura do assistente.
+4. Descubra como os arquivos e os dados são efetivamente persistidos antes de escrever explicações sobre armazenamento.
+5. Reutilize os componentes e as funções existentes sempre que possível.
+
+Não faça refatorações amplas sem justificativa. Não altere contratos do contexto só para facilitar o redesign. Não duplique dados ou crie valores artificiais dentro do JSX.
+
+Os catálogos atuais são dados de demonstração. Nunca descreva esses editais como “oficiais”, “verificados” ou “garantidos”. Preserve os selos existentes que indicam seu caráter didático ou de previsão.
+
+A demonstração do Lucas deve continuar funcionando: perfil de banda, progresso de 60%, checklist incompleto e documento vencido.
+
+Se um dado não existir, utilize o estado vazio adequado. Na Prancheta do Lucas, tente primeiro os dados padrão de demonstração gerenciados pelo AppContext; não invente informações no JSX para preencher lacunas.
+
+---
+
+# PARTE 1 — Navbar, navegação e ajuda
+
+## 4. Simplificar a Navbar
+
+Arquivo principal: `src/components/Navbar.tsx`.
+
+Refaça a hierarquia da navegação para deixá-la compacta, legível e profissional.
+
+### Wordmark
+
+Substitua o ícone atual com a letra “C” dentro de um quadrado vermelho por uma marca tipográfica:
+
+**Cultura em Cena.**
+
+Use Newsreader, peso 600, com o ponto final em vermelho `#991B1B`.
+
+O nome deve permanecer em uma única linha, com `whitespace-nowrap`, alinhamento vertical correto e sem cortes no topo.
+
+Remova o subtítulo “Fomento, documentos & editais”.
+
+### Itens principais
+
+Mantenha quatro destinos principais, com os seguintes rótulos:
+
+- Editais
+- Calendário
+- Cofre
+- Guia
+
+Todos devem caber em uma linha, sem quebras ou truncamentos.
+
+Agrupe “Empresas” e “Organizações Públicas” em um único menu suspenso chamado **“Para instituições”**. Preserve seus destinos e comportamentos atuais, removendo a pílula promocional “EMPRESAS”.
+
+Mova configurações, tema e demais opções secundárias para os locais apropriados, como o menu do usuário, sem remover recursos existentes.
+
+O indicador de progresso da inscrição, atualmente em 60% na demonstração do Lucas, deve aparecer exclusivamente junto a “Cofre”, quando houver inscrição ativa. Não espalhe o indicador por outras áreas.
+
+Reproduza a mesma estrutura de navegação no mobile, garantindo que os menus funcionem por toque, teclado e leitor de tela.
+
+---
+
+## 5. Unificar o assistente e o WhatsApp
+
+Arquivos envolvidos: `CulturalAssistant.tsx` e `WhatsAppButton.tsx`, além de seus componentes auxiliares.
+
+Hoje os dois botões flutuantes competem pela atenção e podem cobrir o conteúdo da aplicação.
+
+Substitua-os por **um único botão flutuante de ajuda**.
+
+No desktop, utilize o rótulo “Dúvidas?” com um ícone simples de balão de conversa. Em telas abaixo de 640 px, o botão pode mostrar somente o ícone, com `aria-label` adequado e área de toque mínima de 44 × 44 px.
+
+Ao ser acionado, abra um pequeno menu com duas ações:
+
+1. “Perguntar ao assistente” — abre o painel atual do assistente cultural.
+2. “Falar no WhatsApp” — mantém o link, o número e a mensagem já configurados no projeto.
+
+Preserve toda a lógica existente de ambos os recursos. Não crie um novo chatbot nem substitua o assistente atual por uma demonstração visual.
+
+Requisitos de interação:
+
+- Use `aria-expanded` e `aria-haspopup` corretamente.
+- Permita fechar com a tecla Esc e ao clicar fora.
+- Gerencie o foco de teclado dentro do menu enquanto estiver aberto.
+- Ao fechar, devolva o foco ao botão que abriu o menu.
+- Respeite `prefers-reduced-motion`.
+- Acrescente espaço inferior ao conteúdo principal, no mobile, para que o botão não cubra formulários, links ou CTAs.
+
+Mostre a ajuda apenas nas páginas em que ela for útil, especialmente no catálogo, checklist e formulários. Evite transformá-la em um elemento decorativo obrigatório em todas as telas.
+
+---
+
+## 6. Faixa de aviso
+
+Arquivo: `src/components/BannerAviso.tsx`.
+
+Transforme a faixa atual em uma informação discreta, com altura máxima de 36 px no desktop.
+
+Texto:
+
+“Versão de demonstração · dados e documentos simulados”
+
+No tema claro, aplique fundo `#F2EEE7` e texto `#44403C`. Não utilize uma barra preta.
+
+Mantenha “Reiniciar demo” e “Limpar cache” como links de texto compactos, alinhados à direita. No mobile, agrupe essas opções em um botão “Opções”.
+
+Preserve a lógica de reinicialização e limpeza já existente.
+
+---
+
+## 7. Textos e contagens da Home
+
+Arquivo: `src/components/HomePage.tsx`.
+
+Corrija singular, plural e o estado vazio da contagem de editais.
+
+Utilize “1 edital aberto” para uma unidade e a flexão correta para os demais números. Para zero, mostre:
+
+“Nenhum edital aberto agora”
+
+Não utilize a palavra “oficiais” nas contagens ou nos textos promocionais sobre o catálogo.
+
+As contagens exibidas devem ser derivadas dos dados reais disponíveis na aplicação, considerando os filtros e os critérios já estabelecidos.
+
+---
+
+# PARTE 2 — Nova Home e Prancheta do Lucas
+
+## 8. Recriar a composição do hero
+
+Arquivo: `src/components/HeroCulturaEmCena.tsx`.
+
+O hero atual é excessivamente centralizado e composto por vários elementos empilhados. Transforme-o em uma composição editorial que apresente o produto de forma concreta logo no primeiro olhar.
+
+### Layout desktop
+
+Use uma grade de 12 colunas:
+
+- Coluna esquerda, 7/12: texto, chamada principal, botões e busca.
+- Coluna direita, 5/12: Prancheta do Lucas, mostrando uma prévia real do funcionamento da plataforma.
+
+Alinhe o texto à esquerda.
+
+Remova a altura mínima exagerada, como `min-h-[85vh]`, e utilize espaçamento vertical natural, com referências como `py-16 lg:py-24`.
+
+O hero deve utilizar o fundo marfim da aplicação, integrando visualmente a entrada do site e as páginas internas.
+
+### Layout mobile
+
+Em telas estreitas, incluindo 390 px:
+
+1. Texto principal.
+2. Botões de ação.
+3. Busca de editais.
+4. Prancheta do Lucas.
+
+Utilize largura disponível sem provocar cortes, rolagem horizontal ou sobreposição.
+
+### Título principal
+
+Mantenha exatamente:
+
+“Encontre o edital do seu projeto e saiba o que falta para se inscrever.”
+
+Use Newsreader, com tamanho responsivo, entrelinha confortável e largura que facilite a leitura.
+
+### Texto de apoio
+
+Utilize uma descrição curta, clara e de alto contraste. Explique que a plataforma ajuda a encontrar oportunidades culturais, organizar documentos e preparar inscrições.
+
+Evite blocos extensos de texto e afirmações que prometam aprovação ou resultados garantidos.
+
+### Remover o seletor do hero
+
+Retire o seletor “Para Artistas / Para Empresas” do hero. Ele divide a atenção antes de o visitante compreender a proposta do produto.
+
+A Home deve priorizar artistas. Preserve os fluxos para empresas e organizações públicas no menu “Para instituições”, sem apagar páginas, funcionalidades ou informações relacionadas a esses públicos.
+
+### Hierarquia dos botões
+
+Botão principal:
+
+- Texto: “Ver editais”.
+- Fundo vermelho `#991B1B`.
+- Texto branco.
+- `rounded-lg`.
+- Contraste acessível.
+
+A ação deve levar ao catálogo existente.
+
+Ação secundária:
+
+- Texto: “Ver um caso de exemplo”.
+- Aparência de link de texto com seta.
+- Sem bloco escuro, fundo preenchido ou peso visual equivalente ao botão principal.
+
+Preserve o comportamento já existente de abrir a demonstração do Lucas.
+
+---
+
+## 9. Integrar a busca ao hero
+
+A busca por editais, que atualmente aparece em uma seção separada, deve ser integrada ao hero logo abaixo das ações principais.
+
+Preserve as funções existentes de busca, filtros, consulta e navegação. Não implemente uma busca visualmente convincente, mas sem funcionamento.
+
+Mantenha os atalhos:
+
+- Música
+- Indaiatuba
+- ProAC
+- PNAB
+- Audiovisual
+- Rouanet
+
+Os atalhos devem aplicar a busca ou o filtro correspondente, utilizando os dados já existentes. Não invente resultados para preencher consultas sem correspondência.
+
+Crie uma interface compacta, com bordas discretas, bom espaçamento e estados claros de foco, preenchimento e ausência de resultados.
+
+---
+
+## 10. Criar o componente DossiePreview
+
+Novo arquivo: `src/components/DossiePreview.tsx`.
+
+Construa uma prévia funcional de uma pasta de inscrição cultural. O objetivo é que o visitante entenda, sem precisar navegar pelo site, como a plataforma organiza as etapas e os documentos.
+
+### Aparência física e editorial
+
+O componente deve parecer uma pasta de documentos contemporânea:
+
+- Fundo de papel `#FFFDF8`.
+- Borda `#E6E0D5`.
+- Cantos `rounded-2xl`.
+- Sombra discreta.
+- Marcadores editoriais opcionais por meio da classe `.crop-marks`.
+- Pequeno clipe desenhado com CSS no centro da borda superior.
+
+O clipe deve funcionar apenas como detalhe visual, sem prejudicar a semântica nem a leitura do card.
+
+### Conteúdo
+
+No topo, apresente:
+
+- Rótulo “Dossiê de inscrição”.
+- Título real do edital associado à inscrição ativa do Lucas.
+- Identificação do perfil “Banda”.
+- Barra de progresso com o percentual real de `activeApplication.progressPercentage`.
+
+Na demonstração atual, o progresso esperado é de 60%, correspondente a 3 de 5 etapas.
+
+O texto deve seguir o formato:
+
+“60% pronto · 3 de 5 etapas”
+
+Não fixe esse valor diretamente no JSX. Derive o percentual e as etapas dos dados reais. A demonstração deve continuar apresentando 60% após a inicialização normal, conforme os dados e a lógica existentes no AppContext.
+
+### Lista de documentos
+
+Exiba os requisitos documentais do edital associado à inscrição.
+
+Reaproveite as funções disponíveis em `src/data/defaultVault.ts`, especialmente:
+
+- `findDocForRequirement`
+- `calculateDocumentStatus`
+
+Considere os documentos vinculados ao cofre e ao edital correto. Não avalie o status exclusivamente pelo nome do arquivo.
+
+Mostre no máximo cinco documentos. Caso haja mais, apresente um indicador do tipo “+ N documentos”, calculado a partir da quantidade real.
+
+Os status devem utilizar rótulos de texto explícitos:
+
+- **Vencido:** carimbo vermelho, com borda dupla e leve rotação de aproximadamente -2 graus.
+- **Vence em breve:** carimbo âmbar.
+- **Em dia:** carimbo verde.
+- **Falta enviar:** carimbo cinza com borda tracejada.
+
+A cor deve complementar o texto, nunca substituí-lo.
+
+### Rodapé
+
+Inclua a ação:
+
+“Abrir o checklist do Lucas”
+
+Ao clicar, utilize o fluxo atual `loginAsLucas()` e encaminhe o usuário para a view `checklist`. Não duplique nem crie outro mecanismo de autenticação.
+
+### Dados vazios
+
+Não coloque nomes de editais, datas, documentos, percentuais ou valores fictícios diretamente no JSX.
+
+Se os dados ativos estiverem ausentes, utilize a configuração padrão de demonstração gerenciada pelo AppContext. Se nem os dados padrão estiverem disponíveis, apresente um estado vazio honesto.
+
+### Acessibilidade e movimento
+
+Estruture o componente como um `<article>` com `aria-label="Exemplo de dossiê de inscrição do Lucas"`.
+
+Os carimbos podem surgir em sequência, com intervalos de 80 ms, apenas na primeira renderização. Respeite `prefers-reduced-motion` e não repita animações desnecessariamente a cada atualização de estado.
+
+---
+
+## 11. Limpar a composição da Home
+
+Arquivo: `src/components/HomePage.tsx`.
+
+Após a integração da busca ao hero:
+
+- Remova a seção separada de busca.
+- Remova a faixa “Acesso rápido” que repete Editais, Calendário, Cofre e Guia.
+- Não crie novas seções com conteúdo duplicado.
+- Preserve as funcionalidades e os pontos de entrada existentes.
+
+A ordem final da Home deve ser:
+
+1. Hero com a Prancheta do Lucas.
+2. Panorama da plataforma.
+3. Perfis atendidos.
+4. Oportunidades abertas.
+5. Para instituições.
+6. Perguntas frequentes.
+
+Reaproveite componentes existentes sempre que isso mantiver a coerência da aplicação.
+
+---
+
+# PARTE 3 — Catálogo em modo tabela
+
+## 12. Alternador de visualização
+
+Arquivo: `src/components/CatalogPage.tsx`.
+
+Adicione, ao lado do seletor de ordenação, um alternador de dois modos:
+
+- Cartões.
+- Tabela.
+
+Utilize os ícones `LayoutGrid` e `Rows3` do lucide-react.
+
+O grupo deve ter semântica de `radiogroup`, com estados selecionados perceptíveis e controles acessíveis por teclado.
+
+Persistência:
+
+- Chave do localStorage: `cec-catalog-view`.
+- Valor padrão: `cartoes`.
+- Valores permitidos: `cartoes` e `tabela`.
+
+Abaixo de 768 px, force o modo cartões e esconda o alternador. No desktop, restaure a preferência salva, respeitando o modo válido disponível.
+
+Não altere a lógica de filtragem, pesquisa, ordenação ou abertura dos detalhes.
+
+## 13. Tabela editorial de editais
+
+Implemente uma tabela semântica que lembre a organização de um diário de publicações culturais.
+
+Utilize `<table>`, `<caption className="sr-only">`, `<thead>`, `<tbody>` e cabeçalhos `<th scope="col">`.
+
+Colunas:
+
+1. Publicação.
+2. Edital.
+3. Área.
+4. Valor.
+5. Prazo.
+6. Situação.
+7. Ação.
+
+Na coluna Edital, apresente o título em destaque e o órgão responsável em texto menor.
+
+Utilize os mesmos dados já filtrados e ordenados em `filteredGrants`. Não crie um segundo conjunto de dados nem uma filtragem paralela exclusiva da tabela.
+
+### Formatação dos valores
+
+Apresente valores monetários com:
+
+- Fonte normal da interface.
+- `tabular-nums`.
+- Alinhamento à direita.
+- Cor de texto principal.
+- Formatação monetária brasileira, como “R$ 45.000,00”, conforme o dado disponível.
+
+Não utilize fonte monoespaçada verde.
+
+No tema escuro, utilize uma cor de texto com contraste adequado, seguindo o equivalente visual de `#F5F3EF`.
+
+### Prazo e situação
+
+Mostre o prazo em `dd/mm/aaaa` e, abaixo, a contagem dinâmica, como “em 25 dias”.
+
+Os prazos devem ser calculados a partir dos dados reais.
+
+Quando faltarem 15 dias ou menos, aplique o destaque âmbar. Para editais encerrados, utilize uma aparência neutra e identifique corretamente seu estado.
+
+Preserve os selos já utilizados nos cartões, incluindo as classificações didáticas ou de previsão. Não utilize a palavra “oficial”.
+
+### Interação
+
+As linhas devem ser compactas, com espaçamento vertical próximo de `py-3`, separadores `#E6E0D5` e realce de fundo `#F2EEE7` ao passar o mouse no tema claro.
+
+Utilize cabeçalho fixo durante a rolagem quando compatível com o layout.
+
+A linha pode abrir o detalhe do edital, desde que a interação não interfira nos controles internos. Inclua também um botão “Ver” acessível por teclado na última coluna.
+
+Garanta foco visível e indique interações de maneira consistente.
+
+Quando não houver resultados, reutilize a mesma mensagem de estado vazio já exibida no modo cartões.
+
+---
+
+## 14. Padronização dos números em todo o site
+
+Revise os valores em reais em componentes como `ChecklistPage.tsx` e `GrantDetailPage.tsx`.
+
+Substitua o uso de fontes monoespaçadas verdes pela tipografia normal da interface, utilizando `tabular-nums` e cor de texto principal.
+
+Preserve a formatação monetária brasileira, o valor original e a lógica existente de exibição.
+
+Não altere cálculos nem arredonde valores silenciosamente.
+
+---
+
+# PARTE 4 — FAQ e acabamento editorial
+
+## 15. Criar o FAQ
+
+Novo arquivo: `src/components/FaqSection.tsx`.
+
+Insira-o no final da Home.
+
+Título:
+
+“Perguntas que sempre aparecem”
+
+Utilize elementos HTML nativos `<details>` e `<summary>`, com funcionamento por teclado e sem dependência de JavaScript para abrir e fechar.
+
+Estilização:
+
+- Linhas finas entre as perguntas.
+- Ícone de mais que gira ou se transforma em um sinal de fechamento quando a resposta está aberta.
+- Transição discreta e compatível com `prefers-reduced-motion`.
+- Boa legibilidade no tema claro e no tema escuro.
+
+### Pergunta 1 — Os editais do site são reais?
+
+Explique que esta é uma versão de demonstração. Os editais apresentados servem para demonstrar a plataforma e são inspirados em programas reais, como PNAB, ProAC, Lei Rouanet e iniciativas culturais de Indaiatuba.
+
+Cada edital possui um selo que indica sua classificação, como modelo didático ou previsão. Antes de se inscrever, a pessoa deve consultar a publicação e as regras no site do órgão responsável.
+
+Não afirme que os dados simulados correspondem a editais efetivamente abertos.
+
+### Pergunta 2 — Meus documentos vão para algum servidor?
+
+Antes de redigir a resposta, investigue como o projeto salva os arquivos e os dados.
+
+Confira o cofre, os mecanismos de upload, o AppContext, a persistência e os eventuais serviços externos.
+
+Se os documentos e dados ficarem somente no navegador nesta versão, explique isso de maneira direta e informe:
+
+“Nesta versão, os dados ficam salvos só no seu navegador. Não envie documentos reais: use arquivos de teste.”
+
+Caso o código utilize outra forma de armazenamento, descreva seu comportamento real. Não prometa privacidade, conformidade legal ou segurança que não tenham sido efetivamente implementadas.
+
+### Pergunta 3 — O Cultura em Cena garante que eu seja aprovado?
+
+Responda que não.
+
+A plataforma ajuda a organizar documentos e prazos para reduzir o risco de problemas documentais. A aprovação depende das regras de cada edital e da avaliação de mérito artístico realizada pela comissão responsável.
+
+Não prometa aprovação ou vantagem competitiva garantida.
+
+### Pergunta 4 — Como uma empresa patrocina com dedução fiscal?
+
+Explique em duas frases:
+
+Pela Lei Rouanet, empresas tributadas pelo lucro real podem destinar parte do imposto de renda devido a projetos culturais aprovados, dentro dos limites legais e das condições aplicáveis. Pelo ProAC ICMS, contribuintes de ICMS em São Paulo podem destinar recursos a projetos aprovados no programa, conforme as regras vigentes.
+
+Finalize exatamente com:
+
+“Consulte um contador antes de patrocinar.”
+
+Não apresente o FAQ como consultoria jurídica ou tributária personalizada.
+
+---
+
+## 16. Marcadores de corte editorial
+
+Arquivo: `src/index.css`.
+
+Crie uma classe utilitária `.crop-marks` que desenhe pequenos sinais de cruz nos quatro cantos de um bloco.
+
+Requisitos:
+
+- Aproximadamente 8 px.
+- Traços de 1 px.
+- Cor `#CFC7B8` no tema claro.
+- Cor mais clara e adequada ao contraste no tema escuro.
+- Implementação com pseudo-elementos e gradientes lineares simples, sem imagens externas.
+
+Aplique a classe somente:
+
+1. Na Prancheta do Lucas.
+2. No bloco do Panorama.
+
+Não espalhe o detalhe por cards, botões, tabelas ou outras seções.
+
+Desative os marcadores no modo de impressão.
+
+---
+
+# PARTE 5 — Linha do tempo do edital
+
+## 17. Linha do tempo no checklist
+
+Arquivo: `src/components/ChecklistPage.tsx`.
+
+Logo abaixo do título do edital, substitua a apresentação isolada do prazo por uma linha do tempo visual com quatro etapas:
+
+1. Inscrições.
+2. Habilitação.
+3. Análise de mérito.
+4. Resultado.
+
+A situação de cada etapa deve ser calculada a partir dos dados disponíveis do edital. Não assuma que todos os editais seguem as mesmas datas nem que todos possuem as mesmas etapas detalhadas.
+
+Enquanto o período de inscrição estiver aberto, marque “Inscrições” como etapa atual.
+
+Utilize:
+
+- Etapas anteriores: verde `#1E3A2F`.
+- Etapa atual: vermelho `#991B1B`, com ponto de destaque ligeiramente maior.
+- Etapas futuras: cinza neutro.
+
+Implemente a estrutura com `<ol>` e marque a etapa atual utilizando `aria-current="step"`.
+
+Abaixo da linha do tempo, exiba a data limite e a contagem regressiva usando `getGrantDeadlineInfo` ou a função equivalente que já existe no projeto.
+
+O formato visual deve ser:
+
+“Inscrições até 29/11/2026 · faltam 38 dias”
+
+**A data e a contagem acima são apenas um exemplo de apresentação. Nunca as fixe no código:** obtenha ambas dos dados reais e recalcule-as dinamicamente.
+
+Se o prazo tiver terminado ou as etapas não estiverem disponíveis, mostre o estado correspondente sem inventar cronogramas.
+
+No desktop, utilize uma linha horizontal fina com as quatro etapas. No mobile, transforme-a em uma linha do tempo vertical, sem cortes ou rolagem horizontal.
+
+---
+
+# PARTE 6 — Correções funcionais e acessibilidade
+
+## 18. Revisão de documentos e prazos
+
+Investigue o cálculo do estado dos documentos, principalmente a situação em que um documento vencido no dia anterior ainda aparece como “vence em 0 dias”.
+
+Garanta que documentos já vencidos sejam identificados corretamente, sem depender de um arredondamento que os mantenha indevidamente como válidos.
+
+Revise o fluxo de renovação de documentos. Ao substituir um documento, os dados apresentados precisam refletir o arquivo realmente selecionado, incluindo nome, tamanho e data correspondente, conforme o modelo de dados existente.
+
+Investigue possíveis colisões causadas pela comparação dos primeiros caracteres do nome do arquivo. Não associe documentos diferentes apenas porque possuem nomes iniciais semelhantes. Utilize identificadores estáveis e os critérios corretos de correspondência já definidos no domínio.
+
+Não reescreva o módulo inteiro sem necessidade. Corrija os problemas identificados, preservando o comportamento funcional do cofre e do checklist.
+
+## 19. Acessibilidade WCAG 2.1 AA
+
+Aplique as seguintes regras em toda a área modificada:
+
+- Contraste mínimo adequado nos temas claro e escuro.
+- Foco visível ao navegar com Tab.
+- Áreas de toque de pelo menos 44 × 44 px para controles interativos.
+- `aria-label` em controles que apresentem somente ícones.
+- Semântica correta para botões, links, menus e tabelas.
+- Estados de carregamento, vazio, erro e seleção compreensíveis.
+- Suporte a teclado no menu de ajuda, na Navbar, no catálogo e nos detalhes.
+- Respeito à preferência `prefers-reduced-motion`.
+- Nenhuma informação transmitida somente pela cor.
+- Nenhum conteúdo importante oculto atrás de elementos flutuantes.
+
+Não adicione atributos ARIA redundantes quando o HTML nativo já oferecer a semântica necessária.
+
+## 20. Responsividade
+
+Trabalhe com abordagem mobile-first.
+
+Valide principalmente:
+
+- 390 px: uso em celular.
+- 768 px: transição para tablet.
+- Desktop amplo: composição editorial com duas colunas no hero.
+
+Em 390 px, confirme que:
+
+- O logo não quebra nem fica cortado.
+- A navegação mobile funciona.
+- O hero mantém o texto antes da prancheta.
+- Os botões não extrapolam a largura disponível.
+- A busca e os atalhos continuam utilizáveis.
+- A Prancheta não apresenta rolagem horizontal.
+- O botão flutuante não encobre conteúdo.
+- A linha do tempo passa para o modo vertical.
+- A tabela permanece substituída pelo modo cartões.
+
+Preserve a navegação existente e o uso funcional em dispositivos móveis.
+
+---
+
+# PARTE 7 — Processo de implementação
+
+## 21. Ordem de execução
+
+Implemente as melhorias nesta sequência:
+
+### Etapa 1 — Diagnóstico e estrutura
+
+Leia os componentes, os dados e os contratos necessários. Identifique os pontos de entrada da aplicação, as rotas ou views e os mecanismos atuais de persistência.
+
+### Etapa 2 — Correções prioritárias
+
+Corrija a Navbar, a ajuda flutuante, a faixa de aviso, os textos das contagens e o tema padrão. Confirme que a aplicação continua funcionando.
+
+### Etapa 3 — Hero e Prancheta
+
+Reestruture o hero, integre a busca e implemente `DossiePreview.tsx` usando os dados reais de demonstração.
+
+### Etapa 4 — Catálogo
+
+Implemente a visualização em tabela para desktop e preserve o modo cartões para dispositivos móveis.
+
+### Etapa 5 — FAQ e acabamento
+
+Implemente `FaqSection.tsx`, os marcadores editoriais e a linha do tempo do checklist.
+
+### Etapa 6 — Revisão e validação
+
+Revise estados vazios, acessibilidade, persistência, responsividade, documentos vencidos, navegação e compatibilidade com os dois temas.
+
+Evite substituir componentes funcionais por versões simplificadas apenas para acelerar o redesign.
+
+---
+
+# PARTE 8 — Critérios obrigatórios de conclusão
+
+## 22. Checklist de validação
+
+Antes de concluir, verifique cada item:
+
+- [ ] O site inicializa sem tela branca.
+- [ ] Não há novos erros no console.
+- [ ] O projeto continua utilizando a estrutura e os dados existentes.
+- [ ] A marca Cultura em Cena fica em uma linha e alinhada verticalmente.
+- [ ] A Navbar está simplificada, com os destinos existentes preservados.
+- [ ] Empresas e organizações públicas continuam acessíveis pelo menu institucional.
+- [ ] Existe apenas um botão flutuante de ajuda, com opções para assistente e WhatsApp.
+- [ ] A ajuda não cobre conteúdo importante no celular.
+- [ ] O tema claro é o padrão para usuários sem preferência salva.
+- [ ] A escolha manual entre tema claro e escuro continua funcionando.
+- [ ] O hero utiliza fundo marfim no tema claro, texto alinhado à esquerda e composição em duas colunas no desktop.
+- [ ] O hero não contém o seletor “Para Artistas / Para Empresas”.
+- [ ] A busca e os atalhos de pesquisa funcionam dentro do hero.
+- [ ] A Prancheta do Lucas apresenta os dados reais da demonstração.
+- [ ] O caso do Lucas continua em 60% de progresso, com o documento vencido.
+- [ ] O botão “Abrir o checklist do Lucas” leva à view correta.
+- [ ] A barra de aviso permanece compacta e informa corretamente que os dados são simulados.
+- [ ] O catálogo preserva filtros, pesquisa, ordenação e abertura dos detalhes.
+- [ ] A tabela é semântica e aparece somente em larguras compatíveis.
+- [ ] Os valores monetários mantêm formatação correta.
+- [ ] O FAQ apresenta informações coerentes com a implementação real do armazenamento.
+- [ ] O cálculo de vencimento não confunde documento vencido com documento prestes a vencer.
+- [ ] A linha do tempo utiliza datas calculadas, sem prazos fixos inseridos no JSX.
+- [ ] Nenhum conteúdo apresenta os editais de demonstração como oficiais ou verificados.
+- [ ] A navegação funciona por teclado, com foco visível.
+- [ ] A interface pode ser utilizada em 390 px sem cortes, sobreposições ou rolagem horizontal desnecessária.
+- [ ] As principais animações respeitam `prefers-reduced-motion`.
+- [ ] Não foram removidas funcionalidades existentes para simplificar o trabalho.
+
+## 23. Typecheck, build e relatório final
+
+Ao terminar as alterações, execute os comandos de verificação disponíveis no projeto.
+
+Identifique no `package.json` os scripts corretos de typecheck e build. Execute ambos e corrija os erros introduzidos pelas mudanças.
+
+Não afirme que os testes passaram se não tiver executado os comandos. Se algum comando falhar por um problema preexistente ou por uma dependência indisponível, informe o erro e diferencie o que foi validado do que não foi possível validar.
+
+Na conclusão, apresente:
+
+1. Resumo das melhorias realmente implementadas.
+2. Lista dos arquivos criados e alterados.
+3. Resultado do typecheck.
+4. Resultado do build.
+5. Problemas restantes ou limitações identificadas.
+
+**Resultado esperado:** um Cultura em Cena visualmente consistente, com identidade editorial própria, navegação simplificada, hero que demonstra o produto de verdade, prancheta funcional do Lucas, catálogo melhor organizado e uma experiência acessível. O site deve parecer uma evolução profissional da aplicação existente, e não um template genérico ou uma reconstrução que perdeu os recursos anteriores.
+
+Comece examinando o código existente e execute a implementação seguindo a ordem estabelecida. Não interrompa o trabalho após apresentar um plano: realize as alterações diretamente no projeto.

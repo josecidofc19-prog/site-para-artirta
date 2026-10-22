@@ -38,6 +38,17 @@ async function startServer() {
 
   app.use(express.json({ limit: '1mb' }));
 
+  // Tratamento explícito de favicon para evitar 404 no console
+  app.get('/favicon.ico', (req, res) => {
+    const icoPath = path.resolve(__dirname, 'public', 'favicon.svg');
+    if (fs.existsSync(icoPath)) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.sendFile(icoPath);
+    } else {
+      res.status(204).end();
+    }
+  });
+
   // 1. Status do Assistente (verifica disponibilidade da chave sem expor ao client)
   app.get('/api/assistant/status', (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;

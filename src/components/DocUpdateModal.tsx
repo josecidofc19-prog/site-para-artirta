@@ -1,9 +1,49 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud, Calendar, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { X, UploadCloud, Calendar, FileText, CheckCircle2, AlertTriangle, ExternalLink, Landmark } from 'lucide-react';
 import { VaultDocument } from '../types';
 import { useApp } from '../context/AppContext';
 import { getCivilDaysRemaining, calculateDocumentStatus } from '../data/defaultVault';
 import { useModalAccessibility } from '../hooks/useModalAccessibility';
+
+const getOfficialPortalLink = (docName: string, reqId?: string) => {
+  const lower = `${docName} ${reqId || ''}`.toLowerCase();
+  if (lower.includes('trabalh') || lower.includes('cndt') || lower.includes('tst')) {
+    return {
+      portal: 'Tribunal Superior do Trabalho (TST)',
+      title: 'Certidão Negativa de Débitos Trabalhistas (CNDT)',
+      url: 'https://cndt-certidao.tst.jus.br/inicio.faces',
+    };
+  }
+  if (lower.includes('fgts') || lower.includes('crf') || lower.includes('caixa')) {
+    return {
+      portal: 'Caixa Econômica Federal',
+      title: 'Certificado de Regularidade do FGTS (CRF)',
+      url: 'https://consulta-crf.caixa.gov.br/consultacrf/pages/consultaEmpregador.jsf',
+    };
+  }
+  if (lower.includes('estadual') || lower.includes('pge') || lower.includes('sefaz')) {
+    return {
+      portal: 'PGE-SP / Procuradoria Geral do Estado',
+      title: 'Certidão de Débitos Tributários da Dívida Ativa Estadual',
+      url: 'https://www.dividaativa.pge.sp.gov.br/sc/pages/crda/emitirCrda.jsf',
+    };
+  }
+  if (lower.includes('municipal') || lower.includes('indaiatuba') || lower.includes('prefeitura') || lower.includes('tributo')) {
+    return {
+      portal: 'Prefeitura Municipal de Indaiatuba',
+      title: 'Certidão Negativa de Débitos Municipais (ISS / IPTU)',
+      url: 'https://www.indaiatuba.sp.gov.br/tributos/',
+    };
+  }
+  if (lower.includes('federal') || lower.includes('receita') || lower.includes('inss') || lower.includes('cnd')) {
+    return {
+      portal: 'Receita Federal do Brasil / PGFN',
+      title: 'Certidão de Débitos Federais e Dívida Ativa da União',
+      url: 'https://solucoes.receita.fazenda.gov.br/servicos/certidaointernet/pj/emitir',
+    };
+  }
+  return null;
+};
 
 interface DocUpdateModalProps {
   document: VaultDocument | null;
@@ -41,6 +81,8 @@ export const DocUpdateModal: React.FC<DocUpdateModalProps> = ({ document: doc, o
   const [simulatedFileSize, setSimulatedFileSize] = useState<string>(doc?.fileSize || '1.0 MB');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const officialPortal = doc ? getOfficialPortalLink(name || doc.name, selectedReqId || doc.requirementId) : null;
 
   // Atualiza os estados locais quando o doc muda
   useEffect(() => {
@@ -196,6 +238,30 @@ export const DocUpdateModal: React.FC<DocUpdateModalProps> = ({ document: doc, o
               className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-white focus-ring"
             />
           </div>
+
+          {/* Emissão Direta no Portal Oficial */}
+          {officialPortal && (
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
+                  <Landmark className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>Emissão Oficial: {officialPortal.portal}</span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                  {officialPortal.title}
+                </p>
+              </div>
+              <a
+                href={officialPortal.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs focus-ring min-h-[36px]"
+              >
+                <span>Emitir no Portal</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          )}
 
           {/* Validade */}
           <div>

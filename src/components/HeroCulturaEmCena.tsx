@@ -1,166 +1,132 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Building2, Paintbrush, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { DossiePreview } from './DossiePreview';
 
-type Audience = 'sponsor' | 'artist';
+export const HeroCulturaEmCena: React.FC = () => {
+  const { setCurrentView, setSearchTerm, loginAsLucas } = useApp();
+  const [searchInput, setSearchInput] = useState('');
 
-export interface HeroCulturaEmCenaProps {
-  onSponsorClick?: () => void;
-  onArtistClick?: () => void;
-}
-
-export const HeroCulturaEmCena: React.FC<HeroCulturaEmCenaProps> = ({
-  onSponsorClick,
-  onArtistClick,
-}) => {
-  const { setCurrentView } = useApp();
-  const [audience, setAudience] = useState<Audience>('sponsor');
-
-  const handleAction = () => {
-    if (audience === 'sponsor') {
-      if (onSponsorClick) {
-        onSponsorClick();
-      } else {
-        setCurrentView('empresas');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } else {
-      if (onArtistClick) {
-        onArtistClick();
-      } else {
-        setCurrentView('catalog');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      setSearchTerm(searchInput.trim());
+      setCurrentView('catalog');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // Conteúdo dinâmico baseado no público selecionado
-  const content = {
-    sponsor: {
-      kicker: "Para Empresas e Governo",
-      title: "Financie a cultura com segurança e estratégia ESG.",
-      desc: "Ligue a sua marca a projetos aprovados em leis de incentivo. Deduza impostos, faça a gestão de editais sem burocracia e acompanhe o impacto social em tempo real num painel transparente.",
-      btnText: "Abrir Edital ou Patrocinar",
-      color: "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500",
-    },
-    artist: {
-      kicker: "Para Artistas e Produtores",
-      title: "Transforme a sua arte num projeto financiado.",
-      desc: "Diga adeus aos PDFs perdidos em caixas de e-mail. Submeta o seu projeto a grandes empresas e editais públicos através de um formulário padronizado, justo e transparente.",
-      btnText: "Submeter o meu Projeto",
-      color: "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500",
-    }
+  const handlePillClick = (term: string) => {
+    setSearchTerm(term);
+    setCurrentView('catalog');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const handleDemoCase = () => {
+    loginAsLucas();
+    setCurrentView('checklist');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const quickPills = ['Música', 'Indaiatuba', 'ProAC', 'PNAB', 'Audiovisual', 'Rouanet'];
 
   return (
-    <section className="relative min-h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#121214] pt-24 pb-16 transition-colors">
-      
-      {/* Fundo Padrão Grid (Estilo SaaS Premium) */}
-      <div 
-        className="absolute inset-0 z-0 pointer-events-none opacity-80 dark:opacity-20" 
-        style={{ 
-          backgroundImage: 'linear-gradient(to right, #cbd5e1 1px, transparent 1px), linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse 60% 60% at 50% 30%, #000 10%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 60% 60% at 50% 30%, #000 10%, transparent 100%)'
-        }} 
-      />
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
-        
-        {/* Toggle Elegante (O segredo do Aceternity UI) */}
-        <div className="flex bg-slate-200/60 dark:bg-white/10 p-1 rounded-full backdrop-blur-md border border-slate-300 dark:border-white/10 shadow-sm mb-12 relative">
-          {(['sponsor', 'artist'] as const).map((type) => {
-            const isSelected = audience === type;
-            return (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setAudience(type)}
-                className={`relative px-6 py-2.5 text-sm font-semibold rounded-full flex items-center gap-2 transition-colors z-10 cursor-pointer ${
-                  isSelected 
-                    ? 'text-slate-900 dark:text-slate-900 font-bold' 
-                    : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white'
-                }`}
-              >
-                {type === 'sponsor' ? <Building2 className="w-4 h-4" /> : <Paintbrush className="w-4 h-4" />}
-                {type === 'sponsor' ? 'Quero Financiar' : 'Sou Artista'}
-                
-                {/* Pílula de seleção animada com Framer Motion layoutId */}
-                {isSelected && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-white dark:bg-white rounded-full shadow-sm border border-slate-200/50 -z-10"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Troca de Conteúdo Animada */}
-        <div className="min-h-[260px] sm:min-h-[220px] flex flex-col items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={audience}
-              initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="flex flex-col items-center"
-            >
-              <span className="text-sm font-bold tracking-widest text-slate-400 dark:text-slate-400 uppercase mb-4 block">
-                {content[audience].kicker}
-              </span>
-              
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight text-balance leading-[1.1] mb-6 max-w-4xl font-editorial">
-                {content[audience].title}
-              </h1>
-              
-              <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl text-balance leading-relaxed mb-10">
-                {content[audience].desc}
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <button 
-                  type="button"
-                  onClick={handleAction}
-                  className={`inline-flex items-center gap-2 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 group cursor-pointer ${content[audience].color}`}
-                >
-                  <span>{content[audience].btnText}</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </button>
-
-                {audience === 'sponsor' ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCurrentView('organizacoes_publicas');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-3 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    Sou Gestor Público (PNAB) &rarr;
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCurrentView('formulario_projeto');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-3 rounded-full hover:bg-slate-200/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    Criar Rascunho de Projeto &rarr;
-                  </button>
-                )}
+    <section className="relative bg-[#FAF7F2] dark:bg-[#121214] border-b border-[#E6E0D5] dark:border-white/10 pt-12 sm:pt-16 pb-16 sm:pb-20 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          
+          {/* Coluna Esquerda: 7 colunas no desktop */}
+          <div className="lg:col-span-7 space-y-6 sm:space-y-7">
+            
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#FAF7F2] dark:bg-white/5 border border-[#E6E0D5] dark:border-white/10 text-xs font-semibold uppercase tracking-wider text-[#991B1B] dark:text-red-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#991B1B] dark:bg-red-400" />
+                <span>Fomento Cultural · Indaiatuba & Região</span>
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
 
+              <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#1C1917] dark:text-[#F5F3EF] leading-[1.08]">
+                Editais culturais sem mistério: do cadastro à aprovação.
+              </h1>
+            </div>
+
+            <p className="text-base sm:text-lg text-[#57534E] dark:text-[#D6D3D1] max-w-xl leading-relaxed">
+              Guia prático, cofre de documentos com alertas de validade e simulador de fomento para artistas, bandas e coletivos de Indaiatuba e região.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-4 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentView('catalog');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-6 py-3 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-medium text-sm transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#991B1B] cursor-pointer"
+              >
+                Ver editais
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDemoCase}
+                className="text-sm font-semibold text-[#1C1917] dark:text-[#F5F3EF] hover:text-[#991B1B] dark:hover:text-red-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#991B1B] rounded-md px-2 py-1"
+              >
+                <span>Ver um caso de exemplo</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Campo de Busca Integrado */}
+            <div className="pt-3 max-w-xl space-y-3">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+                <label htmlFor="hero-search-input" className="sr-only">
+                  Buscar editais por área, termo ou localização
+                </label>
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#78716C] dark:text-[#A8A29E]">
+                  <Search className="w-4 h-4" />
+                </div>
+                <input
+                  id="hero-search-input"
+                  type="search"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Buscar por linguagem, edital ou cidade..."
+                  className="w-full pl-10 pr-24 py-3 text-sm rounded-lg border border-[#CFC7B8] dark:border-white/10 bg-white dark:bg-[#1A1A1E] text-[#1C1917] dark:text-white placeholder:text-[#A8A29E] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#991B1B] transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 px-3.5 py-1.5 rounded-md bg-[#1C1917] dark:bg-[#FAF7F2] text-white dark:text-[#1C1917] text-xs font-semibold hover:bg-[#292524] dark:hover:bg-white transition-colors cursor-pointer"
+                >
+                  Buscar
+                </button>
+              </form>
+
+              {/* Pílulas de Acesso Rápido */}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="text-[#78716C] dark:text-[#A8A29E] mr-1 text-[11px] font-medium uppercase tracking-wider">
+                  Sugestões:
+                </span>
+                {quickPills.map((pill) => (
+                  <button
+                    key={pill}
+                    type="button"
+                    onClick={() => handlePillClick(pill)}
+                    className="px-2.5 py-1 rounded-md bg-white dark:bg-[#1A1A1E] text-[#57534E] dark:text-[#D6D3D1] border border-[#E6E0D5] dark:border-white/10 hover:border-[#991B1B] dark:hover:border-red-400 hover:text-[#991B1B] dark:hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    {pill}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Coluna Direita: 5 colunas no desktop com Dossiê em formato físico */}
+          <div className="lg:col-span-5 w-full max-w-md mx-auto lg:max-w-none pt-4 lg:pt-0">
+            <DossiePreview />
+          </div>
+
+        </div>
       </div>
     </section>
   );

@@ -49,7 +49,11 @@ export function getCivilDaysRemaining(expiryDate: string | null | undefined): nu
   const expiryDayStart = new Date(expiryCivil.getFullYear(), expiryCivil.getMonth(), expiryCivil.getDate(), 0, 0, 0, 0);
 
   const diffMs = expiryDayStart.getTime() - todayStart.getTime();
-  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  if (expiryCivil.getTime() < todayStart.getTime()) {
+    return diffDays < 0 ? diffDays : -1;
+  }
+  return diffDays;
 }
 
 /**
@@ -57,7 +61,7 @@ export function getCivilDaysRemaining(expiryDate: string | null | undefined): nu
  * Regras:
  * - Sem validade (null/undefined): 'em_dia' (documentos permanentes)
  * - Data inválida: 'vencido'
- * - Validade anterior a hoje (diffDays < 0): 'vencido' (ex: vencido ontem -> diffDays = -1)
+ * - Validade anterior a hoje: 'vencido' (ex: vencido ontem -> 'vencido')
  * - Validade vence hoje ou em até 30 dias (0 <= diffDays <= 30): 'vence_breve'
  * - Validade superior a 30 dias (diffDays > 30): 'em_dia'
  */
@@ -68,6 +72,12 @@ export function calculateDocumentStatus(expiryDate: string | null | undefined): 
 
   const expiryCivil = parseCivilExpiryDate(expiryDate);
   if (!expiryCivil) {
+    return 'vencido';
+  }
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  if (expiryCivil.getTime() < todayStart.getTime()) {
     return 'vencido';
   }
 

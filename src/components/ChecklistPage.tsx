@@ -15,7 +15,8 @@ import {
   Edit3,
   AlertCircle,
   CalendarPlus,
-  ClipboardCheck
+  ClipboardCheck,
+  Printer
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getGrantDeadlineInfo } from '../data/mockGrants';
@@ -170,44 +171,87 @@ export const ChecklistPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-500 dark:text-slate-400">
             <span>Órgão: <strong className="text-slate-800 dark:text-slate-200">{currentGrant.issuingBody}</strong></span>
             <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-            <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">
+            <span className="font-semibold text-[#1C1917] dark:text-[#F5F3EF] tabular-nums">
               R$ {currentGrant.grantValue.toLocaleString('pt-BR')},00
             </span>
             <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
-            <span className="flex items-center gap-1 font-mono text-amber-500 font-semibold">
+            <span className="flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400 tabular-nums">
               <Clock className="w-3.5 h-3.5" aria-hidden="true" />
               {label}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0 print:hidden">
+          <button
+            onClick={() => window.print()}
+            className="btn-secondary px-3.5 py-2 text-xs focus-ring min-h-[42px] inline-flex items-center gap-1.5 cursor-pointer"
+            title="Imprimir dossiê ou salvar como PDF limpo"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Imprimir Dossiê</span>
+          </button>
+          
           <button
             onClick={() => {
               setSelectedGrantId(currentGrant.id);
               setCurrentView('grant_detail');
             }}
-            className="btn-secondary px-4 py-2 text-xs focus-ring min-h-[42px]"
+            className="btn-secondary px-3.5 py-2 text-xs focus-ring min-h-[42px] cursor-pointer"
           >
             Ver regulamento
           </button>
           
           <button
             onClick={() => downloadCalendarReminder(`Prazo do edital: ${currentGrant.title}`, currentGrant.deadlineDate, `Prazo de inscrição informado para ${currentGrant.title}. Confira o edital oficial antes de enviar.`)}
-            className="btn-secondary px-4 py-2 text-xs focus-ring min-h-[42px] inline-flex items-center gap-2"
+            className="btn-secondary px-3.5 py-2 text-xs focus-ring min-h-[42px] inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <CalendarPlus className="w-3.5 h-3.5" /> Adicionar à agenda
+            <CalendarPlus className="w-3.5 h-3.5" /> Agenda
           </button>
           <button
             onClick={submitApplicationForReview}
             disabled={activeApplication.status === 'revisao_solicitada'}
-            className="btn-primary px-4 py-2 text-xs focus-ring min-h-[42px]"
+            className="btn-primary px-4 py-2 text-xs focus-ring min-h-[42px] cursor-pointer"
           >
             <Send className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{activeApplication.status === 'revisao_solicitada' ? 'Em revisão simulada' : 'Enviar para revisão'}</span>
           </button>
         </div>
       </motion.div>
+
+      {/* 4 Fases do Processo Oficial do Edital */}
+      <nav aria-label="Fases do Edital" className="p-4 rounded-xl bg-white dark:bg-[#1A1A1E] border border-[#E6E0D5] dark:border-white/10 shadow-2xs">
+        <ol className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs" aria-label="Etapas do edital">
+          <li className="flex items-center gap-2.5 p-2 rounded-lg bg-[#FAF7F2] dark:bg-white/5 border-l-2 border-[#991B1B]" aria-current="step">
+            <span className="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center font-bold text-[10px] shrink-0">1</span>
+            <div>
+              <p className="font-semibold text-[#1C1917] dark:text-[#F5F3EF]">Inscrições Abertas</p>
+              <p className="text-[10px] text-[#78716C] dark:text-[#A8A29E]">Fase atual de submissão</p>
+            </div>
+          </li>
+          <li className="flex items-center gap-2.5 p-2 rounded-lg opacity-80">
+            <span className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center font-medium text-[10px] shrink-0">2</span>
+            <div>
+              <p className="font-medium text-[#1C1917] dark:text-[#F5F3EF]">Habilitação Documental</p>
+              <p className="text-[10px] text-[#78716C] dark:text-[#A8A29E]">Conferência das CNDs</p>
+            </div>
+          </li>
+          <li className="flex items-center gap-2.5 p-2 rounded-lg opacity-80">
+            <span className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center font-medium text-[10px] shrink-0">3</span>
+            <div>
+              <p className="font-medium text-[#1C1917] dark:text-[#F5F3EF]">Análise de Mérito</p>
+              <p className="text-[10px] text-[#78716C] dark:text-[#A8A29E]">Avaliação da comissão</p>
+            </div>
+          </li>
+          <li className="flex items-center gap-2.5 p-2 rounded-lg opacity-80">
+            <span className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center font-medium text-[10px] shrink-0">4</span>
+            <div>
+              <p className="font-medium text-[#1C1917] dark:text-[#F5F3EF]">Resultado & Homologação</p>
+              <p className="text-[10px] text-[#78716C] dark:text-[#A8A29E]">Publicação em D.O.</p>
+            </div>
+          </li>
+        </ol>
+      </nav>
 
       {/* Cartão Bento de Progresso & Próxima Ação */}
       <motion.div 

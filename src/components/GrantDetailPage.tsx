@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
+  ArrowRight,
   Calendar, 
   Clock, 
   FileText, 
@@ -172,7 +173,7 @@ export const GrantDetailPage: React.FC = () => {
             {grant.city ? `${grant.city}, ${grant.state}` : `Estado de ${grant.state}`}
           </span>
           <span aria-hidden="true" className="text-[#CFCECB]">·</span>
-          <span className={`font-mono font-semibold ${isClosed ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+          <span className={`font-semibold tabular-nums ${isClosed ? 'text-red-600 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
             {label}
           </span>
         </div>
@@ -204,7 +205,7 @@ export const GrantDetailPage: React.FC = () => {
             disabled={isClosed}
             className="btn-editorial-primary px-6 py-2.5 text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-red-700 cursor-pointer"
           >
-            <Sparkles className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" />
             <span>{isPreparingThis ? 'Continuar preparação (Checklist)' : 'Começar preparação'}</span>
           </motion.button>
 

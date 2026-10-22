@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B42318" />
+      <stop offset="100%" stop-color="#7F1D1D" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#brandGrad)" />
+  <text x="16" y="23" font-family="'Newsreader', 'Playfair Display', Georgia, serif" font-size="22" font-style="italic" font-weight="bold" fill="#FAF7F2" text-anchor="middle">C</text>
+  <circle cx="25" cy="7" r="2.5" fill="#F2B705" />
+</svg>

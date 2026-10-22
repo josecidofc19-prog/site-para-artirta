@@ -54,6 +54,8 @@ interface AppContextType {
   setShowDemoGrants: (show: boolean) => void;
   toast: DemoToast | null;
   showToast: (title: string, message: string, type?: 'success' | 'info' | 'warning') => void;
+  assistantOpen: boolean;
+  setAssistantOpen: (open: boolean) => void;
   
   // Rascunho de Projeto
   projectDraft: ProjectDraft;
@@ -134,7 +136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.THEME);
       if (saved === 'dark' || saved === 'light') return saved;
-      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return 'light';
     } catch {
       return 'light';
     }
@@ -264,6 +266,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [showDemoGrants]);
 
   const [toast, setToast] = useState<DemoToast | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState<boolean>(false);
 
   // Rascunho persistido do formulário de projeto
   const [projectDraft, setProjectDraft] = useState<ProjectDraft>(() => {
@@ -808,6 +811,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setShowDemoGrants,
     toast,
     showToast,
+    assistantOpen,
+    setAssistantOpen,
     projectDraft,
     updateProjectDraft,
     updateUserProfile,
@@ -846,6 +851,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setShowDemoGrants,
     toast,
     showToast,
+    assistantOpen,
+    setAssistantOpen,
     projectDraft,
     updateProjectDraft,
     updateUserProfile,

@@ -4,7 +4,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { BannerAviso } from './components/BannerAviso';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { WhatsAppButton } from './components/WhatsAppButton';
+import { UnifiedHelpButton } from './components/UnifiedHelpButton';
 import { CulturalAssistant } from './components/CulturalAssistant';
 import { HomePage } from './components/HomePage';
 import { CatalogPage } from './components/CatalogPage';
@@ -60,31 +60,27 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <AppProvider>
         <div className="min-h-screen flex flex-col bg-[#faf7f2] dark:bg-[#121214] text-[#1c1917] dark:text-[#f5f3ef] transition-colors">
-          {/* Banner de Aviso Acadêmico e Ações de Demonstração */}
-          <BannerAviso />
+          {/* Elementos Superiores - Ocultos na Impressão */}
+          <div className="print:hidden">
+            <BannerAviso />
+            <Navbar />
+          </div>
 
-          {/* Barra de Navegação Superior */}
-          <Navbar />
-
-          {/* Conteúdo Principal com Troca de Telas */}
+          {/* Conteúdo Principal */}
           <div className="flex-1">
             <MainContent />
           </div>
 
-          {/* Rodapé Global Estruturado */}
-          <Footer />
-
-          {/* Botão Flutuante do Assistente Cultural (acima do WhatsApp) */}
-          <CulturalAssistant />
-
-          {/* Botão Flutuante de Atendimento WhatsApp */}
-          <WhatsAppButton />
-
-          {/* Modais Globais e Notificações Flutuantes */}
-          <PrepChoiceModal />
-          <AuthModal />
-          <WorkspaceModalRenderer />
-          <ToastNotification />
+          {/* Modais, Botões Flutuantes e Rodapé - Ocultos na Impressão */}
+          <div className="print:hidden">
+            <Footer />
+            <CulturalAssistant />
+            <UnifiedHelpButton />
+            <PrepChoiceModal />
+            <AuthModal />
+            <WorkspaceModalRenderer />
+            <ToastNotification />
+          </div>
         </div>
       </AppProvider>
     </MotionConfig>
