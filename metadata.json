@@ -1,0 +1,8 @@
+{
+  "name": "Cultura em Cena",
+  "description": "Plataforma para artistas independentes encontrarem oportunidades culturais, entenderem requisitos e prepararem inscrições.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

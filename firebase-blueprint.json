@@ -1,0 +1,104 @@
+{
+  "entities": {
+    "Grant": {
+      "title": "Grant",
+      "description": "Public edital / grant opportunity for artists and cultural projects",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "organization": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["open", "closed", "upcoming", "reviewing"] },
+        "sphere": { "type": "string", "enum": ["federal", "state", "municipal", "private"] },
+        "segment": { "type": "string", "maxLength": 100 },
+        "state": { "type": "string", "maxLength": 10 },
+        "city": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["title", "organization", "status"]
+    },
+    "OfficialSource": {
+      "title": "OfficialSource",
+      "description": "Official sources, gazettes and government portals monitored for cultural calls",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 150 },
+        "url": { "type": "string", "maxLength": 300 },
+        "sphere": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "url"]
+    },
+    "VaultDocument": {
+      "title": "VaultDocument",
+      "description": "User digital vault documents and certificates",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["valid", "expiring", "expired", "pending"] },
+        "expirationDate": { "type": "string" },
+        "fileUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["title", "type", "status"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Cultural project draft and proposal",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "budgetTotal": { "type": "number" },
+        "status": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["title"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Edital application submission track",
+      "type": "object",
+      "properties": {
+        "grantId": { "type": "string", "maxLength": 100 },
+        "projectId": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "maxLength": 50 },
+        "progressPercent": { "type": "number" }
+      },
+      "required": ["grantId", "status"]
+    },
+    "Analysis": {
+      "title": "Analysis",
+      "description": "AI-assisted edital and proposal analysis",
+      "type": "object",
+      "properties": {
+        "grantId": { "type": "string", "maxLength": 100 },
+        "score": { "type": "number" },
+        "feedback": { "type": "string", "maxLength": 5000 }
+      },
+      "required": ["score"]
+    }
+  },
+  "firestore": {
+    "/grants/{grantId}": {
+      "schema": { "$ref": "#/entities/Grant" },
+      "description": "Public list of cultural grants and editais"
+    },
+    "/official_sources/{sourceId}": {
+      "schema": { "$ref": "#/entities/OfficialSource" },
+      "description": "Public list of official government gazettes and grant portals"
+    },
+    "/users/{userId}/vault/{docId}": {
+      "schema": { "$ref": "#/entities/VaultDocument" },
+      "description": "User documents, certidões and credentials"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "User cultural proposals and portfolios"
+    },
+    "/users/{userId}/applications/{appId}": {
+      "schema": { "$ref": "#/entities/Application" },
+      "description": "User applications submitted or drafted for editais"
+    },
+    "/users/{userId}/analyses/{analysisId}": {
+      "schema": { "$ref": "#/entities/Analysis" },
+      "description": "AI analysis reports on projects and editais"
+    }
+  }
+}
