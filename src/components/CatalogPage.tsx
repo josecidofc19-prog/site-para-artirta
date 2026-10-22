@@ -28,7 +28,9 @@ export const CatalogPage: React.FC = () => {
     setSelectedGrantId, 
     setCurrentView,
     startPreparationForGrant,
-    activeApplication
+    activeApplication,
+    showDemoGrants,
+    setShowDemoGrants
   } = useApp();
 
   // Estados de Filtros
@@ -38,20 +40,38 @@ export const CatalogPage: React.FC = () => {
   const [selectedValueRange, setSelectedValueRange] = useState<string>('all');
   const [selectedDeadlineRange, setSelectedDeadlineRange] = useState<string>('all');
   const [selectedLegal, setSelectedLegal] = useState<string>('all');
+  const [selectedVerification, setSelectedVerification] = useState<string>('all');
   
-  // Status padrão: "abertos" (exibe exatamente os 10 abertos; os 2 encerrados só aparecem em "encerrados" ou "todos")
+  // Status padrão: "abertos"
   const [selectedStatus, setSelectedStatus] = useState<'abertos' | 'encerrados' | 'todos'>('abertos');
   
   // Ordenação
   const [sortBy, setSortBy] = useState<'prazo' | 'valor' | 'publicacao'>('prazo');
+
+  // Contagem estrita de editais abertos oficiais verificados
+  const verifiedOpenCount = useMemo(() => {
+    return grants.filter(g => 
+      g.verificationStatus === 'verified' && 
+      !getGrantDeadlineInfo(g.deadlineDate).isClosed
+    ).length;
+  }, [grants]);
 
   // Filtragem combinada em tempo real sobre os dados do estado
   const filteredGrants = useMemo(() => {
     return grants.filter(grant => {
       const deadlineInfo = getGrantDeadlineInfo(grant.deadlineDate);
 
-      // Regra obrigatória: por padrão, mostrar apenas os 10 abertos.
-      // Encerrados aparecem somente quando o filtro "encerrados" ou "todos" for selecionado.
+      // Modelos didáticos (demo) ocultos por padrão, a menos que o switch esteja ativo ou filtro explícito
+      if (grant.verificationStatus === 'demo' && !showDemoGrants && selectedVerification !== 'demo') {
+        return false;
+      }
+
+      // Filtro por Nível de Verificação
+      if (selectedVerification !== 'all' && grant.verificationStatus !== selectedVerification) {
+        return false;
+      }
+
+      // Regra de prazo
       if (selectedStatus === 'abertos' && deadlineInfo.isClosed) {
         return false;
       }
@@ -133,6 +153,8 @@ export const CatalogPage: React.FC = () => {
     selectedValueRange, 
     selectedDeadlineRange, 
     selectedLegal, 
+    selectedVerification,
+    showDemoGrants,
     sortBy
   ]);
 
@@ -143,6 +165,7 @@ export const CatalogPage: React.FC = () => {
     setSelectedValueRange('all');
     setSelectedDeadlineRange('all');
     setSelectedLegal('all');
+    setSelectedVerification('all');
     setSelectedStatus('abertos');
     setSearchTerm('');
   };
@@ -154,6 +177,7 @@ export const CatalogPage: React.FC = () => {
     selectedValueRange !== 'all' ||
     selectedDeadlineRange !== 'all' ||
     selectedLegal !== 'all' ||
+    selectedVerification !== 'all' ||
     selectedStatus !== 'abertos' ||
     searchTerm.trim().length > 0;
 
@@ -168,26 +192,40 @@ export const CatalogPage: React.FC = () => {
         className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/80 dark:border-white/5 pb-8"
       >
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
-            <span className="tracking-wide uppercase font-mono text-xs">Catálogo demonstrativo</span>
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20">
+            <span className="tracking-wide uppercase font-mono text-xs">Catálogo Confiável de Editais</span>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Oportunidades Culturais
+            Oportunidades de Fomento Cultural
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
-            Modelos educativos para explorar filtros e preparar sua inscrição. Os prazos e valores dos registros demonstrativos não são oportunidades oficiais confirmadas.
+            Diagnóstico de elegibilidade e preparação documental com transparência: oportunidades oficiais verificadas, previsões de ciclos e modelos didáticos para treino.
           </p>
         </div>
 
         <div className="flex flex-col sm:items-end gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
-            <span>Registros: <strong className="text-slate-800 dark:text-slate-200">12 modelos educativos</strong></span>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
+            <span>Oficiais abertos: <strong className="text-emerald-600 dark:text-emerald-400 tabular-nums">{verifiedOpenCount}</strong></span>
             <span className="text-slate-300 dark:text-slate-700">·</span>
-            <span>Exibindo: <strong className="text-teal-600 dark:text-teal-400 tabular-nums">{filteredGrants.length}</strong></span>
+            <span>Exibindo: <strong className="text-slate-800 dark:text-slate-200 tabular-nums">{filteredGrants.length}</strong></span>
           </div>
-          <button onClick={() => setCurrentView('eligibilidade')} className="btn-primary px-4 py-2.5 text-xs inline-flex items-center gap-2 min-h-[42px] self-start sm:self-auto">
-            <CheckCircle2 className="w-4 h-4" /> Posso me inscrever?
-          </button>
+          
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Switch de Modelos Didáticos (Ocultos por padrão) */}
+            <label className="inline-flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 transition-colors">
+              <input
+                type="checkbox"
+                checked={showDemoGrants}
+                onChange={e => setShowDemoGrants(e.target.checked)}
+                className="w-4 h-4 rounded text-red-600 focus:ring-red-500 cursor-pointer"
+              />
+              <span className="font-semibold text-[11px]">Exibir modelos didáticos</span>
+            </label>
+
+            <button onClick={() => setCurrentView('eligibilidade')} className="btn-primary px-4 py-2 text-xs inline-flex items-center gap-2 min-h-[36px]">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Posso me inscrever?
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -341,6 +379,24 @@ export const CatalogPage: React.FC = () => {
             </select>
           </div>
 
+          {/* Nível de Confiabilidade / Status de Verificação */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              Confiabilidade
+            </label>
+            <select
+              value={selectedVerification}
+              onChange={e => setSelectedVerification(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus-ring text-xs"
+            >
+              <option value="all">Todas as fontes</option>
+              <option value="verified">Oficial verificado</option>
+              <option value="pending_verification">Aguardando confirmação</option>
+              <option value="forecast">Previsão histórica</option>
+              <option value="demo">Modelo didático</option>
+            </select>
+          </div>
+
           {/* Ordenação */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
@@ -364,6 +420,12 @@ export const CatalogPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-white/5 text-xs">
             <div className="flex flex-wrap items-center gap-2 text-slate-500 dark:text-slate-400">
               <span className="font-medium">Filtros aplicados:</span>
+              {selectedVerification !== 'all' && (
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
+                  Confiabilidade: {selectedVerification === 'verified' ? 'Oficial verificado' : selectedVerification === 'pending_verification' ? 'Aguardando confirmação' : selectedVerification === 'forecast' ? 'Previsão histórica' : 'Modelo didático'}
+                  <button onClick={() => setSelectedVerification('all')}><X className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-white" /></button>
+                </span>
+              )}
               {selectedStatus !== 'abertos' && (
                 <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center gap-1.5 border border-slate-200/60 dark:border-white/5">
                   Status: {selectedStatus}
@@ -457,8 +519,29 @@ export const CatalogPage: React.FC = () => {
                 }`}
               >
                 <div className="space-y-3.5">
-                  {/* Metadados Limpos sem Pill Candy */}
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  {/* Badge de Verificação e Metadados */}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    {grant.verificationStatus === 'verified' && (
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20 inline-flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Oficial Verificado
+                      </span>
+                    )}
+                    {grant.verificationStatus === 'pending_verification' && (
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 dark:bg-blue-500/10 dark:text-blue-300 border border-blue-200 dark:border-blue-500/20 inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-blue-600" /> Aguardando Confirmação
+                      </span>
+                    )}
+                    {grant.verificationStatus === 'forecast' && (
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300 border border-amber-200 dark:border-amber-500/20 inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-amber-600" /> Previsão Histórica
+                      </span>
+                    )}
+                    {grant.verificationStatus === 'demo' && (
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300 border border-slate-200 dark:border-white/10 inline-flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-red-600" /> Modelo Didático
+                      </span>
+                    )}
+
                     <span className="font-semibold text-teal-600 dark:text-teal-400">{grant.artisticArea}</span>
                     <span aria-hidden="true" className="text-slate-300 dark:text-slate-700">·</span>
                     <span>{grant.sphere}</span>

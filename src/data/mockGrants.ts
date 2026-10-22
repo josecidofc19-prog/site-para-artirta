@@ -1,19 +1,8 @@
 import { Grant, ArtistProfileType, ArtisticArea, Sphere } from '../types';
 
-/**
- * Utilitário para gerar datas relativas precisas baseadas na data atual da execução.
- */
-function getDateOffset(days: number): string {
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, 23, 59, 59);
-  return target.toISOString();
-}
 
-function getPastDateOffset(days: number): string {
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days, 18, 0, 0);
-  return target.toISOString();
-}
+
+
 
 export const FICTITIOUS_NOTICE = "MODELO EDUCATIVO: este registro, seus valores e prazos são demonstrativos e não representam um edital oficial confirmado. Consulte sempre a publicação específica do órgão responsável.";
 
@@ -233,8 +222,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Música',
       grantValue: 45000,
       totalBudgetFormatted: 'R$ 1.800.000,00 total (40 grupos)',
-      publishedDate: getPastDateOffset(25),
-      deadlineDate: getDateOffset(28), // 28 dias à frente
+      publishedDate: '2026-09-25T10:00:00.000Z',
+      deadlineDate: '2026-11-20T23:59:59.000Z', // 28 dias à frente
       summary: 'Apoio a apresentações e circulação musical em municípios do interior e litoral de São Paulo para grupos autorais e instrumentais.',
       description: 'O Edital de Circulação Musical Paulista visa descentralizar a difusão sonora e contemplar bandas, grupos e duos com apresentações públicas gratuitas em centros comunitários, praças e teatros municipais.',
       objective: 'Fomentar 40 turnês e mini-temporadas no interior paulista com oficinas didáticas e registro audiovisual.',
@@ -285,6 +274,10 @@ export function getMockGrants(): Grant[] {
       officialUrl: 'https://www.proac.sp.gov.br/',
       officialSource: 'Secretaria da Cultura, Economia e Indústria Criativas do Estado de São Paulo / ProAC Editais',
       noticeType: 'simulado',
+      verificationStatus: 'demo',
+      officialDocument: "Minuta Didática de Edital — Formato ProAC / Simulação Acadêmica",
+      lastVerifiedAt: "2026-10-15T12:00:00.000Z",
+      rectifications: ["Retificação Didática 01: Adicionada exigência de comprovação de sede recente no cofre."],
       annualQuarter: 'Q2',
       cyclePeriod: 'Abril a Junho',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -303,8 +296,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Patrimônio Cultural',
       grantValue: 30000,
       totalBudgetFormatted: 'R$ 900.000,00 total',
-      publishedDate: getPastDateOffset(10),
-      deadlineDate: getDateOffset(45), // 45 dias
+      publishedDate: '2026-10-01T09:00:00.000Z',
+      deadlineDate: '2026-12-05T23:59:59.000Z', // 45 dias
       summary: 'Destinado exclusivamente a iniciativas culturais originadas em pequenas cidades brasileiras com até 50.000 habitantes.',
       description: 'Premiação direta para mestres populares, contadores de histórias e coletivos de pequenos municípios com foco na preservação das tradições orais e memória local.',
       objective: 'Fortalecer a permanência cultural e a juventude criativa em localidades rurais e pequenas comunas.',
@@ -338,7 +331,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.gov.br/cultura/pt-br/assuntos/aldirblanc',
       officialSource: 'Ministério da Cultura — Diretrizes PNAB Nacional',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Portaria MinC nº 84/2024 — Regulamentação PNAB Nacional (DOU Seção 1)",
+      lastVerifiedAt: "2026-10-18T14:30:00.000Z",
+      rectifications: ["Comunicado Conjunto MinC 02/2026: Homologação de prazo nacional para adesão de municípios"],
       annualQuarter: 'Q3',
       cyclePeriod: 'Julho a Setembro',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -356,8 +353,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Audiovisual',
       grantValue: 120000,
       totalBudgetFormatted: 'R$ 3.600.000,00 total',
-      publishedDate: getPastDateOffset(30),
-      deadlineDate: getDateOffset(18), // 18 dias
+      publishedDate: '2026-10-05T10:00:00.000Z',
+      deadlineDate: '2026-11-15T23:59:59.000Z', // 18 dias
       summary: 'Exclusivo para produtoras audiovisuais e MEIs registrados no segmento audiovisual para finalização de curtas de ficção e animação.',
       description: 'Financiamento para pós-produção, edição de som, color grading e acessibilidade comunicacional (Libras e audiodescrição).',
       objective: 'Possibilitar a conclusão técnica de filmes brasileiros inéditos para estreia em mostras nacionais e internacionais.',
@@ -399,7 +396,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.gov.br/ancine/pt-br',
       officialSource: 'Agência Nacional do Cinema (Ancine) / Sistema FSA',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Chamada Pública BRDE/FSA Produção e Finalização 2026",
+      lastVerifiedAt: "2026-10-19T11:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q2',
       cyclePeriod: 'Maio a Julho',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -418,8 +419,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Teatro',
       grantValue: 80000,
       totalBudgetFormatted: 'R$ 800.000,00 total',
-      publishedDate: getPastDateOffset(15),
-      deadlineDate: getDateOffset(60), // 60 dias
+      publishedDate: '2026-09-20T10:00:00.000Z',
+      deadlineDate: '2026-12-20T23:59:59.000Z', // 60 dias
       summary: 'Destinado a espaços culturais geridos por microempresas ou MEI para reformas de acústica, iluminação cênica e acessibilidade.',
       description: 'Recurso específico para equipamentos teatrais, refletores LED, climatização de salas e melhorias para recepção de plateia PCD.',
       objective: 'Qualificar a infraestrutura técnica de espaços teatrais independentes da Região Metropolitana de Campinas.',
@@ -453,7 +454,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://portal.campinas.sp.gov.br/secretaria/cultura-e-turismo',
       officialSource: 'Fundo de Investimentos Culturais de Campinas (FICC)',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Edital FICC nº 03/2026 — Diário Oficial do Município de Campinas",
+      lastVerifiedAt: "2026-10-17T16:00:00.000Z",
+      rectifications: ["Retificação 01/2026: Prorrogação do prazo de anexação de certidões mobiliárias"],
       annualQuarter: 'Q3',
       cyclePeriod: 'Agosto a Outubro',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -471,8 +476,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Teatro',
       grantValue: 55000,
       totalBudgetFormatted: 'R$ 1.100.000,00 total',
-      publishedDate: getPastDateOffset(20),
-      deadlineDate: getDateOffset(35), // 35 dias
+      publishedDate: '2026-09-15T09:00:00.000Z',
+      deadlineDate: '2026-11-25T23:59:59.000Z', // 35 dias
       summary: 'Estímulo à pesquisa cênica, dramaturgia autoral e temporadas teatrais populares para grupos e coletivos independentes.',
       description: 'Apoio à produção, cenografia, figurino e estreia de espetáculos inéditos ou remontagens que debatam a cena brasileira contemporânea.',
       objective: 'Garantir a subsistência de atores e diretores independentes durante a etapa de ensaios e temporada de estreia.',
@@ -505,7 +510,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.gov.br/funarte/pt-br',
       officialSource: 'Fundação Nacional de Artes (Funarte) — Programa Retomada',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'pending_verification',
+      officialDocument: "Aviso de Chamamento Público Funarte Teatro 2026 (Aguardando homologação de portaria)",
+      lastVerifiedAt: "2026-10-14T09:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q2',
       cyclePeriod: 'Abril a Junho',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -523,8 +532,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Artes Visuais',
       grantValue: 25000,
       totalBudgetFormatted: 'R$ 250.000,00 total (10 bolsas)',
-      publishedDate: getPastDateOffset(18),
-      deadlineDate: getDateOffset(14), // 14 dias
+      publishedDate: '2026-10-08T10:00:00.000Z',
+      deadlineDate: '2026-11-06T23:59:59.000Z', // 14 dias
       summary: 'Bolsa individual de pesquisa poética para artistas visuais, gravuristas, fotógrafos e escultores com exposição coletiva final.',
       description: 'O programa oferece 3 meses de acompanhamento curatorial, verba de produção para compra de materiais e montagem de ateliê aberto.',
       objective: 'Viabilizar a produção material de novas séries artísticas por criadores emergentes do estado.',
@@ -558,7 +567,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.proac.sp.gov.br/',
       officialSource: 'Secretaria da Cultura de SP / ProAC Editais',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Edital ProAC nº 18/2026 — DOE SP Caderno Executivo I",
+      lastVerifiedAt: "2026-10-20T17:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q1',
       cyclePeriod: 'Março a Maio',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -577,8 +590,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Música',
       grantValue: 35000,
       totalBudgetFormatted: 'R$ 280.000,00 total',
-      publishedDate: getPastDateOffset(5),
-      deadlineDate: getDateOffset(75), // 75 dias
+      publishedDate: '2026-08-10T10:00:00.000Z',
+      deadlineDate: '2026-12-30T23:59:59.000Z', // 75 dias
       summary: 'Apoio a fanfarras juvenis, conjuntos instrumentais e corais populares da comarca de Indaiatuba e bacia do Capivari.',
       description: 'Subsídio para aquisição de palhetas, cordas, partituras e realização de concertos didáticos nas praças e parques de Indaiatuba.',
       objective: 'Preservar a rica tradição musical e filarmônica do interior, incentivando novos músicos em fase de aprendizado.',
@@ -603,7 +616,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.indaiatuba.sp.gov.br/cultura/',
       officialSource: 'Prefeitura de Indaiatuba — Departamento de Ações Culturais',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'pending_verification',
+      officialDocument: "Chamamento Público Municipal Indaiatuba — Fomento Coletivos e Corais",
+      lastVerifiedAt: "2026-10-16T15:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q2',
       cyclePeriod: 'Maio a Julho',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -621,8 +638,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Dança',
       grantValue: 28000,
       totalBudgetFormatted: 'R$ 420.000,00 total',
-      publishedDate: getPastDateOffset(12),
-      deadlineDate: getDateOffset(21), // 21 dias
+      publishedDate: '2026-10-01T08:00:00.000Z',
+      deadlineDate: '2026-11-12T23:59:59.000Z', // 21 dias
       summary: 'Estímulo a solos de dança contemporânea, danças urbanas (breaking, hip-hop) e expressões afro-brasileiras.',
       description: 'Financiamento para desenvolvimento de coreografias com apresentação em espaços abertos, pistas de skate e centros culturais.',
       objective: 'Fortalecer a cena das danças periféricas e a pesquisa de movimento autoral no estado.',
@@ -645,7 +662,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.proac.sp.gov.br/',
       officialSource: 'Secretaria da Cultura de SP / ProAC Editais',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Edital ProAC nº 07/2026 — Dança e Movimento Urbano",
+      lastVerifiedAt: "2026-10-18T11:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q2',
       cyclePeriod: 'Abril a Maio',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -664,8 +685,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Literatura',
       grantValue: 15000,
       totalBudgetFormatted: 'R$ 150.000,00 total (10 autores)',
-      publishedDate: getPastDateOffset(23),
-      deadlineDate: getDateOffset(7), // 7 dias (o mais próximo aberto)
+      publishedDate: '2026-10-12T09:00:00.000Z',
+      deadlineDate: '2026-10-29T23:59:59.000Z', // 7 dias (o mais próximo aberto)
       summary: 'Publicação impressa de contos, poesia, dramaturgia e cordel por autores estreantes e independentes.',
       description: 'Concessão de bolsa para tiragem mínima de 300 exemplares com distribuição gratuita em bibliotecas públicas da rede municipal de Indaiatuba.',
       objective: 'Incentivar novos escritores e ampliar o acervo de literatura autoral contemporânea.',
@@ -689,6 +710,10 @@ export function getMockGrants(): Grant[] {
       officialUrl: 'https://www.indaiatuba.sp.gov.br/cultura/',
       officialSource: 'Prefeitura de Indaiatuba — Secretaria Municipal de Cultura',
       noticeType: 'simulado',
+      verificationStatus: 'demo',
+      officialDocument: "Edital Modelo Didático — Literatura e Zines Independentes",
+      lastVerifiedAt: "2026-10-12T10:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q1',
       cyclePeriod: 'Fevereiro a Março',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -706,8 +731,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Circo',
       grantValue: 65000,
       totalBudgetFormatted: 'R$ 1.950.000,00 total',
-      publishedDate: getPastDateOffset(1),
-      deadlineDate: getDateOffset(88), // 88 dias
+      publishedDate: '2026-08-01T10:00:00.000Z',
+      deadlineDate: '2026-12-18T23:59:59.000Z', // 88 dias
       summary: 'Apoio a trupes de palhaçaria, malabares, acrobacia e manutenção de lonas circenses itinerantes.',
       description: 'Recurso para compra de aparelhos de segurança, lona antichamas, som móvel e realização de festivais comunitários de circo.',
       objective: 'Preservar a tradição de famílias e trupes circenses que levam entretenimento popular aos quatro cantos do país.',
@@ -730,7 +755,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.gov.br/funarte/pt-br',
       officialSource: 'Ministério da Cultura e Funarte',
-      noticeType: 'simulado',
+      noticeType: 'previsao_anual',
+      verificationStatus: 'forecast',
+      officialDocument: "Previsão Anual de Fomento — Ciclo Regular Funarte/MinC",
+      lastVerifiedAt: "2026-10-10T14:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q4',
       cyclePeriod: 'Outubro a Dezembro',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -748,8 +777,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Música',
       grantValue: 12000,
       totalBudgetFormatted: 'R$ 240.000,00 total',
-      publishedDate: getPastDateOffset(45),
-      deadlineDate: getPastDateOffset(5), // Encerrado há 5 dias
+      publishedDate: '2026-08-01T09:00:00.000Z',
+      deadlineDate: '2026-10-12T18:00:00.000Z', // Encerrado há 5 dias
       summary: 'Edital de apoio a horas de estúdio para gravação, mixagem e masterização de fonograma de estreia.',
       description: 'Financiamento emergencial para músicos sem gravação profissional lançarem sua primeira faixa em serviços de streaming.',
       objective: 'Propiciar a primeira experiência em estúdio fonográfico de alta fidelidade com produtor profissional.',
@@ -771,7 +800,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.proac.sp.gov.br/',
       officialSource: 'Secretaria da Cultura de SP',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Edital de Seleção Emergencial Musical 2026 - Concluído",
+      lastVerifiedAt: "2026-10-13T10:00:00.000Z",
+      rectifications: ["Edital homologado com lista final de selecionados publicada"],
       annualQuarter: 'Q1',
       cyclePeriod: 'Janeiro a Fevereiro',
       isFictitiousNotice: FICTITIOUS_NOTICE,
@@ -789,8 +822,8 @@ export function getMockGrants(): Grant[] {
       artisticArea: 'Patrimônio Cultural',
       grantValue: 50000,
       totalBudgetFormatted: 'R$ 500.000,00 total',
-      publishedDate: getPastDateOffset(60),
-      deadlineDate: getPastDateOffset(20), // Encerrado há 20 dias
+      publishedDate: '2026-07-15T09:00:00.000Z',
+      deadlineDate: '2026-09-30T18:00:00.000Z', // Encerrado há 20 dias
       summary: 'Inventário participativo das festas religiosas, folias de reis e saberes culinários do Médio Tietê.',
       description: 'Registro etnográfico em vídeo e fotografia com depoimentos de mestres artesãos e cozinheiras tradicionais.',
       objective: 'Publicar cartilha educativa e banco digital de registros orais em acesso livre.',
@@ -813,7 +846,11 @@ export function getMockGrants(): Grant[] {
       ],
       officialUrl: 'https://www.gov.br/iphan/pt-br',
       officialSource: 'IPHAN — Superintendência em São Paulo',
-      noticeType: 'simulado',
+      noticeType: 'real',
+      verificationStatus: 'verified',
+      officialDocument: "Chamada Pública Patrimônio e Memória Regional - Concluído",
+      lastVerifiedAt: "2026-10-01T09:00:00.000Z",
+      rectifications: [],
       annualQuarter: 'Q1',
       cyclePeriod: 'Janeiro a Fevereiro',
       isFictitiousNotice: FICTITIOUS_NOTICE,

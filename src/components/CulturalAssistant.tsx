@@ -125,23 +125,27 @@ export const CulturalAssistant: React.FC = () => {
   // Encontrar o edital atualmente em foco
   const activeGrant = grants.find(g => g.id === (activeApplication?.grantId || selectedGrantId)) || grants[0];
 
-  // Gerador de resposta offline para o modo de demonstração acadêmica
+  // Gerador de resposta offline para o modo de contingência
   const generateOfflineFallbackResponse = (query: string): string => {
     const q = query.toLowerCase().trim();
+    const isDemo = activeGrant?.verificationStatus === 'demo' || activeGrant?.noticeType === 'simulado';
+    const isForecast = activeGrant?.verificationStatus === 'forecast' || activeGrant?.noticeType === 'previsao_anual';
+    const warningPrefix = isDemo 
+      ? 'Aviso de Modelo Didático: Este edital é uma simulação didática educativa e não representa uma oportunidade oficial confirmada.\n\n'
+      : isForecast 
+        ? 'Aviso de Previsão Histórica: Este edital é uma estimativa baseada em ciclos regulares sem garantia de abertura.\n\n'
+        : '';
 
     // 1. Pergunta sobre o Checklist
     if (q.includes('checklist') || q.includes('falta') || q.includes('etapa') || q.includes('progresso')) {
       const expiredDoc = vaultDocuments.find(d => d.status === 'vencido');
       const docName = expiredDoc ? expiredDoc.name : 'Certidão Negativa de Tributos Mobiliários';
       const grantName = activeGrant ? activeGrant.title : 'Edital de Circulação Musical SP 2026';
-      const isSimulado = activeGrant?.noticeType === 'simulado';
 
-      return `[Resposta de exemplo (assistente offline)]
-
-${isSimulado ? 'Aviso: Este edital é um modelo educativo de referência.\n' : ''}O que o edital diz:
+      return `${warningPrefix}O que o edital informa:
 Conforme o ${grantName}, Seção: Documentos e Habilitação, são exigidos todos os comprovantes de representação e certidões negativas válidas na data do envio.
 
-O que eu sugiro:
+Sugestão de preparação:
 No seu checklist atual para este edital (progresso em 60%):
 • Pendência crítica: A "${docName}" no seu cofre está vencida. É necessário emitir uma nova certidão e atualizá-la no cofre para avançar.
 • Restam concluir as etapas de "Proposta Artística e Cronograma" e a "Revisão Final" antes da simulação de submissão.`;
@@ -150,14 +154,11 @@ No seu checklist atual para este edital (progresso em 60%):
     // 2. Pergunta sobre elegibilidade do grupo / perfil
     if (q.includes('serve') || q.includes('grupo') || q.includes('banda') || q.includes('perfil') || q.includes('coletivo') || q.includes('elegiv')) {
       const grantName = activeGrant ? activeGrant.title : 'Edital de Circulação Musical SP 2026';
-      const isSimulado = activeGrant?.noticeType === 'simulado';
 
-      return `[Resposta de exemplo (assistente offline)]
-
-${isSimulado ? 'Aviso: Este edital é um modelo educativo de referência.\n' : ''}O que o edital diz:
+      return `${warningPrefix}O que o edital informa:
 No ${grantName}, Seção: Condições de Elegibilidade e Participação, é permitida a inscrição de grupos e bandas musicais com representação formal por pessoa física integrante do grupo ou por pessoa jurídica (MEI/Produtora).
 
-O que eu sugiro:
+Sugestão de preparação:
 Como o seu perfil atual na plataforma é "${selectedProfile === 'banda_grupo' ? 'Banda ou Grupo' : selectedProfile}", o edital é compatível com a sua formação. Certifique-se de anexar a "Declaração de Representação do Grupo" assinada por todos os integrantes.`;
     }
 
@@ -166,32 +167,26 @@ Como o seu perfil atual na plataforma é "${selectedProfile === 'banda_grupo' ? 
       const expiredDocs = vaultDocuments.filter(d => d.status === 'vencido');
       const warningDocs = vaultDocuments.filter(d => d.status === 'vence_breve');
 
-      return `[Resposta de exemplo (assistente offline)]
-
-O que os registros do cofre indicam:
+      return `O que os registros do cofre indicam:
 • Documentos vencidos: ${expiredDocs.length > 0 ? expiredDocs.map(d => `"${d.name}" (Validade expirada)`).join(', ') : 'Nenhum documento vencido.'}
 • Vencendo em breve: ${warningDocs.length > 0 ? warningDocs.map(d => `"${d.name}"`).join(', ') : 'Nenhum documento em período de atenção.'}
 
-O que eu sugiro:
+Sugestão de preparação:
 Renove certidões municipais e federais com antecedência através dos links oficiais dos portais emissores antes de fechar a proposta final.`;
     }
 
     // 4. Pergunta sobre prazo do edital
     if (q.includes('prazo') || q.includes('data') || q.includes('quando encerra') || q.includes('aberto')) {
-      const grantName = activeGrant ? activeGrant.title : 'Edital de Circulação Musical SP 2026';
-      return `[Resposta de exemplo (assistente offline)]
-
-O que o edital diz:
+      const grantName = activeGrant ? activeGrant.title : 'Edital cadastrado';
+      return `${warningPrefix}O que o edital informa:
 No ${grantName}, Seção: Cronograma de Inscrições, o período de inscrições está vigente com encerramento previsto para ${activeGrant?.deadlineDate ? new Date(activeGrant.deadlineDate).toLocaleDateString('pt-BR') : 'os próximos dias'} no portal do órgão emissor (${activeGrant?.issuingBody || 'Secretaria da Cultura'}).
 
-O que eu sugiro:
+Sugestão de preparação:
 Consulte a página oficial para verificar eventuais comunicados de prorrogação ou retificação.`;
     }
 
-    // 5. Pergunta sobre algo não cadastrado
-    return `[Resposta de exemplo (assistente offline)]
-
-Não consigo confirmar isso nos editais cadastrados. Confira no edital oficial.`;
+    // 5. Fallback padrão estrito
+    return `Não consigo confirmar essa informação nos dados oficiais cadastrados deste edital. Recomendo consultar a página oficial do órgão emissor.`;
   };
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -227,6 +222,10 @@ Não consigo confirmar isso nos editais cadastrados. Confira no edital oficial.`
         sphere: activeGrant.sphere,
         artisticArea: activeGrant.artisticArea,
         noticeType: activeGrant.noticeType,
+        verificationStatus: activeGrant.verificationStatus,
+        officialDocument: activeGrant.officialDocument,
+        lastVerifiedAt: activeGrant.lastVerifiedAt,
+        rectifications: activeGrant.rectifications,
         summary: activeGrant.summary,
         deadlineDate: activeGrant.deadlineDate,
         eligibility: [activeGrant.eligiblePublic, ...(activeGrant.restrictions || [])],

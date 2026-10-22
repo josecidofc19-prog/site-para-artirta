@@ -8,7 +8,7 @@
  * Aceita substituição via variável de ambiente VITE_WHATSAPP_NUMBER.
  */
 export const WHATSAPP_NUMBER: string =
-  (import.meta.env.VITE_WHATSAPP_NUMBER as string)?.trim() || '5519987654321';
+  (import.meta.env.VITE_WHATSAPP_NUMBER as string)?.trim() || '';
 
 export const WHATSAPP_DEFAULT_MESSAGE: string =
   'Olá! Vim pela plataforma Cultura em Cena e gostaria de suporte para preparação de editais culturais.';

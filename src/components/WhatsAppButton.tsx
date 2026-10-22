@@ -10,27 +10,18 @@ export const WhatsAppButton: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
 
   const cleanNumber = WHATSAPP_NUMBER.trim().replace(/\D/g, '');
-  const isConfigured = cleanNumber.length >= 8;
+  // Ocultação estrita: só exibe se houver número válido configurado com DDI+DDD
+  const isConfigured = Boolean(
+    cleanNumber && 
+    cleanNumber.length >= 10 && 
+    cleanNumber !== '5519987654321'
+  );
 
-  useEffect(() => {
-    if (!showNotice) return;
-    const timer = setTimeout(() => setShowNotice(false), 4500);
-    return () => clearTimeout(timer);
-  }, [showNotice]);
+  if (!isConfigured) {
+    return null;
+  }
 
-  const handleUnconfiguredClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowNotice(true);
-    showToast(
-      'WhatsApp',
-      'Contato por WhatsApp ainda não configurado',
-      'info'
-    );
-  };
-
-  const whatsappUrl = isConfigured
-    ? `https://wa.me/${cleanNumber}?text=${encodeURIComponent(WHATSAPP_DEFAULT_MESSAGE)}`
-    : undefined;
+  const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(WHATSAPP_DEFAULT_MESSAGE)}`;
 
   return (
     <div className="fixed bottom-5 sm:bottom-6 right-4 sm:right-6 z-40 flex flex-col items-end pointer-events-none">
@@ -64,32 +55,18 @@ export const WhatsAppButton: React.FC = () => {
       </AnimatePresence>
 
       {/* Botão Flutuante */}
-      {isConfigured ? (
-        <motion.a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Falar com a equipe pelo WhatsApp"
-          whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.02 }}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
-          className="pointer-events-auto group inline-flex items-center gap-2.5 px-4 py-3 sm:px-4.5 sm:py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-950/20 dark:shadow-black/50 border border-emerald-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 cursor-pointer"
-        >
-          <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
-          <span className="tracking-tight whitespace-nowrap">Fale com a gente</span>
-        </motion.a>
-      ) : (
-        <motion.button
-          type="button"
-          onClick={handleUnconfiguredClick}
-          aria-label="Falar com a equipe pelo WhatsApp"
-          whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.02 }}
-          whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
-          className="pointer-events-auto group inline-flex items-center gap-2.5 px-4 py-3 sm:px-4.5 sm:py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-950/20 dark:shadow-black/50 border border-emerald-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 cursor-pointer"
-        >
-          <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
-          <span className="tracking-tight whitespace-nowrap">Fale com a gente</span>
-        </motion.button>
-      )}
+      <motion.a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Falar com a equipe pelo WhatsApp"
+        whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.02 }}
+        whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
+        className="pointer-events-auto group inline-flex items-center gap-2.5 px-4 py-3 sm:px-4.5 sm:py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-950/20 dark:shadow-black/50 border border-emerald-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 cursor-pointer"
+      >
+        <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
+        <span className="tracking-tight whitespace-nowrap">Fale com a gente</span>
+      </motion.a>
     </div>
   );
 };

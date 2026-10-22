@@ -31,6 +31,12 @@ export interface GrantDocumentRequirement {
   description: string;
 }
 
+export type VerificationStatus = 
+  | 'verified' 
+  | 'pending_verification' 
+  | 'forecast' 
+  | 'demo';
+
 export interface Grant {
   id: string;
   title: string;
@@ -45,7 +51,7 @@ export interface Grant {
   grantValue: number; // Ex: 45000 (R$ 45.000,00)
   totalBudgetFormatted: string; // Ex: "R$ 450.000,00 total"
   publishedDate: string; // ISO String
-  deadlineDate: string; // ISO String (used to compute relative status & remaining days)
+  deadlineDate: string; // ISO String (data oficial fixa para oportunidades reais)
   summary: string;
   description: string;
   objective: string;
@@ -55,6 +61,10 @@ export interface Grant {
   requiredDocuments: GrantDocumentRequirement[];
   officialUrl?: string | null;
   officialSource?: string;
+  officialDocument?: string; // Nome ou número do documento oficial (DOE, MinC, etc.)
+  lastVerifiedAt?: string; // Data ISO da última checagem oficial
+  rectifications?: string[]; // Retificações ou comunicados oficiais
+  verificationStatus: VerificationStatus;
   noticeType?: 'real' | 'simulado' | 'previsao_anual';
   annualQuarter?: 'Q1' | 'Q2' | 'Q3' | 'Q4';
   cyclePeriod?: string; // Ex: "Março a Maio", "Fluxo Contínuo"

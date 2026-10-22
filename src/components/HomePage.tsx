@@ -6,26 +6,31 @@ import {
   BookOpen, ExternalLink, Landmark, Calculator
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { ArtistProfileType, AppView, Grant } from '../types';
+import { ArtistProfileType, AppView, Grant, VerificationStatus } from '../types';
 import { getGrantDeadlineInfo } from '../data/mockGrants';
 import { Tooltip, InfoTooltip } from './Tooltip';
 import { HeroCulturaEmCena } from './HeroCulturaEmCena';
 
-const NOTICE_BADGE: Record<NonNullable<Grant['noticeType']>, { label: string; tooltip: string; className: string }> = {
-  real: {
+const NOTICE_BADGE: Record<VerificationStatus, { label: string; tooltip: string; className: string }> = {
+  verified: {
     label: 'Oficial verificado',
     tooltip: 'Edital em vigor publicado em diário oficial ou portal governamental com link direto para consulta pública.',
     className: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20',
   },
-  simulado: {
-    label: 'Modelo educativo',
-    tooltip: 'Edital simulado para aprendizado prático e treino de envio de documentação, sem efeito jurídico ou inscrição real.',
-    className: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/5 dark:text-slate-300 dark:border-white/10',
+  pending_verification: {
+    label: 'Aguardando confirmação',
+    tooltip: 'Referência pública existente nos canais governamentais, aguardando publicação definitiva do edital ou anexos específicos.',
+    className: 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20',
   },
-  previsao_anual: {
+  forecast: {
     label: 'Previsão histórica',
     tooltip: 'Estimativa baseada nos ciclos e chamamentos anuais de anos anteriores para planejamento prévio de sua produção.',
     className: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20',
+  },
+  demo: {
+    label: 'Modelo educativo',
+    tooltip: 'Edital simulado para aprendizado prático e treino de envio de documentação, sem efeito jurídico ou inscrição real.',
+    className: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/5 dark:text-slate-300 dark:border-white/10',
   },
 };
 
@@ -109,7 +114,7 @@ export const HomePage: React.FC = () => {
   ];
 
   const featuredGrants = grants
-    .filter(g => !getGrantDeadlineInfo(g.deadlineDate).isClosed)
+    .filter(g => g.verificationStatus === 'verified' && !getGrantDeadlineInfo(g.deadlineDate).isClosed)
     .slice(0, 3);
 
   const fadeUp = (delay = 0) => ({
@@ -370,7 +375,7 @@ export const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-5">
             {featuredGrants.map((grant) => {
               const deadline = getGrantDeadlineInfo(grant.deadlineDate);
-              const badge = NOTICE_BADGE[grant.noticeType ?? 'simulado'];
+              const badge = NOTICE_BADGE[grant.verificationStatus ?? 'verified'];
               return (
                 <article
                   key={grant.id}

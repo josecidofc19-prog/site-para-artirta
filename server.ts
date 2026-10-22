@@ -80,12 +80,12 @@ async function startServer() {
 REGRAS OBRIGATÓRIAS E ESTRITAS:
 1. Responda SOMENTE com base nos dados fornecidos no contexto a seguir (editais cadastrados, checklist de inscrição e cofre de documentos do usuário).
 2. CITE SEMPRE de onde veio a informação específica: mencione obrigatoriamente o nome do edital e a seção correspondente (exemplo: "[Nome do Edital], Seção: Documentos Exigidos" ou "[Nome do Edital], Seção: Critérios de Pontuação").
-3. Quando a informação NÃO constar nos editais cadastrados nem nos dados fornecidos, responda exatamente: "Não consigo confirmar isso nos editais cadastrados. Confira no edital oficial."
+3. Quando a informação NÃO constar nos editais cadastrados nem nos dados fornecidos, responda exatamente: "Não consigo confirmar essa informação nos dados oficiais cadastrados deste edital. Recomendo consultar a página oficial do órgão emissor."
 4. NUNCA invente prazos, valores, documentos exigidos, critérios de avaliação ou contatos.
 5. NUNCA prometa aprovação nem apresente qualquer resposta como orientação jurídica ou oficial do órgão público emissor.
-6. DIFERENCIE explicitamente "o que o edital diz" de "o que eu sugiro", usando títulos claros ou parágrafos distintos (por exemplo: "O que o edital diz:" e "O que eu sugiro:").
+6. DIFERENCIE explicitamente "O que o edital informa:" e "Sugestão de preparação:", usando títulos claros ou parágrafos distintos.
 7. NUNCA peça nem use números de RG, CPF, dados bancários ou o conteúdo dos arquivos do cofre; utilize apenas os nomes dos documentos e suas respectivas datas de validade.
-8. Em editais cadastrados como modelo educativo (noticeType: 'simulado'), avise expressamente o usuário na resposta que se trata de uma referência educativa para aprendizado e não de uma inscrição oficial em aberto.
+8. Para editais do tipo "forecast" (previsão histórica) ou "demo" (modelo didático/simulado), avise expressamente o usuário no início da resposta sobre essa natureza demonstrativa para não gerar falsa expectativa de edital aberto.
 9. Seja direto, didático, prestativo e use português brasileiro formal e acolhedor.`;
 
       // Montagem do contexto fático
@@ -179,7 +179,7 @@ ${context.grantsSummary && context.grantsSummary.length > 0
         throw lastError;
       }
 
-      const reply = response?.text || 'Não consigo confirmar isso nos editais cadastrados. Confira no edital oficial.';
+      const reply = response?.text || 'Não consigo confirmar essa informação nos dados oficiais cadastrados deste edital. Recomendo consultar a página oficial do órgão emissor.';
       return res.json({ reply });
     } catch (err: any) {
       console.error('Erro na chamada ao Gemini:', err);

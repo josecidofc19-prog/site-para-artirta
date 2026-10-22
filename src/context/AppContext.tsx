@@ -50,6 +50,8 @@ interface AppContextType {
   setWorkspaceModalOpen: (open: boolean) => void;
   showWorkspaceButton: boolean;
   setShowWorkspaceButton: (show: boolean) => void;
+  showDemoGrants: boolean;
+  setShowDemoGrants: (show: boolean) => void;
   toast: DemoToast | null;
   showToast: (title: string, message: string, type?: 'success' | 'info' | 'warning') => void;
   
@@ -138,14 +140,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
-  // User state
+  // User state (Visitante novo inicia limpo sem perfil de Lucas pré-carregado)
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USER);
       if (saved) return JSON.parse(saved);
-      return LUCAS_DEMO_USER;
+      return null;
     } catch {
-      return LUCAS_DEMO_USER;
+      return null;
     }
   });
 
@@ -154,9 +156,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PROFILE) as ArtistProfileType;
       if (saved) return saved;
-      return 'banda_grupo';
+      return 'artista_solo';
     } catch {
-      return 'banda_grupo';
+      return 'artista_solo';
     }
   });
 
@@ -167,21 +169,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedGrantId, setSelectedGrantIdState] = useState<string | null>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GRANT_ID);
-      return saved || 'edital-circulacao-musical-sp';
+      return saved || 'edital-cidades-criativas-pequenas';
     } catch {
-      return 'edital-circulacao-musical-sp';
+      return 'edital-cidades-criativas-pequenas';
     }
   });
 
-  // Vault documents com migração segura de status dinâmico e IDs da demonstração
+  // Vault documents (Visitante novo inicia com cofre vazio)
   const [vaultDocuments, setVaultDocuments] = useState<VaultDocument[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.VAULT);
       if (saved) {
         const parsed: VaultDocument[] = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed.map(doc => {
-            // Migração determinística exclusivamente para os documentos da demonstração do Lucas
             let requirementId = doc.requirementId;
             if (!requirementId) {
               if (doc.id === 'doc-lucas-1') requirementId = 'doc-req-rep';
@@ -189,7 +190,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               else if (doc.id === 'doc-lucas-3') requirementId = 'doc-req-residencia';
             }
 
-            // O status é sempre recalculado dinamicamente a partir de expiryDate
             const currentStatus = calculateDocumentStatus(doc.expiryDate);
 
             return {
@@ -202,20 +202,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           });
         }
       }
-      return getDefaultLucasDocuments();
+      return [];
     } catch {
-      return getDefaultLucasDocuments();
+      return [];
     }
   });
 
-  // Application checklist
+  // Application checklist (Visitante novo inicia sem inscrição pré-iniciada)
   const [activeApplication, setActiveApplication] = useState<Application | null>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.APPLICATION);
       if (saved) return JSON.parse(saved);
-      return getDefaultLucasApplication();
+      return null;
     } catch {
-      return getDefaultLucasApplication();
+      return null;
     }
   });
 
@@ -244,6 +244,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn('Erro ao salvar configuração do botão workspace:', e);
     }
   }, [showWorkspaceButton]);
+
+  // Modelos didáticos ocultos por padrão, ativáveis apenas por opção explícita
+  const [showDemoGrants, setShowDemoGrants] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('cultura_show_demo_grants');
+      return saved === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cultura_show_demo_grants', String(showDemoGrants));
+    } catch (e) {
+      console.warn('Erro ao salvar configuração de modelos demo:', e);
+    }
+  }, [showDemoGrants]);
 
   const [toast, setToast] = useState<DemoToast | null>(null);
 
@@ -601,24 +619,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginAsLucas = useCallback(() => {
     setUser(LUCAS_DEMO_USER);
     setSelectedProfileState('banda_grupo');
+    setSelectedGrantIdState('edital-circulacao-musical-sp');
+    const lucasDocs = getDefaultLucasDocuments();
+    const lucasApp = getDefaultLucasApplication();
+    setVaultDocuments(lucasDocs);
+    setActiveApplication(lucasApp);
     setPrepModalOpen(false);
     setAuthModalOpen(false);
+    setShowDemoGrants(true); // Permite visualizar o edital didático de Lucas
 
-    if (selectedGrantId) {
-      setCurrentView('checklist');
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(LUCAS_DEMO_USER));
+      localStorage.setItem(STORAGE_KEYS.PROFILE, 'banda_grupo');
+      localStorage.setItem(STORAGE_KEYS.GRANT_ID, 'edital-circulacao-musical-sp');
+      localStorage.setItem(STORAGE_KEYS.VAULT, JSON.stringify(lucasDocs));
+      localStorage.setItem(STORAGE_KEYS.APPLICATION, JSON.stringify(lucasApp));
+      localStorage.setItem('cultura_show_demo_grants', 'true');
+    } catch (e) {
+      console.warn('Erro ao salvar demonstração no localStorage:', e);
     }
+
+    setCurrentView('checklist');
 
     showToast(
       'Demonstração carregada: Lucas',
-      'Conta de Lucas ativada com perfil Banda ou grupo (Indaiatuba).',
+      'Conta de Lucas ativada (Banda Veludo Branco) com checklist em 60% e comprovante de endereço vencido para teste prático.',
       'success'
     );
-  }, [selectedGrantId, showToast]);
+  }, [showToast]);
 
   const logout = useCallback(() => {
     setUser(null);
+    setVaultDocuments([]);
+    setActiveApplication(null);
+    setSelectedProfileState('artista_solo');
+    try {
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.removeItem(STORAGE_KEYS.VAULT);
+      localStorage.removeItem(STORAGE_KEYS.APPLICATION);
+      localStorage.removeItem(STORAGE_KEYS.PROFILE);
+    } catch {
+      // ignore
+    }
     setCurrentView('home');
-    showToast('Sessão encerrada', 'Você saiu do modo de acesso logado.', 'info');
+    showToast('Sessão encerrada', 'Você retornou ao modo visitante sem perfil carregado.', 'info');
   }, [showToast]);
 
   const registerSimulatedUser = useCallback((userData: Omit<User, 'id'>) => {
@@ -726,11 +770,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     setUser(null);
     setSelectedProfileState('artista_solo');
-    setVaultDocuments(getDefaultLucasDocuments());
+    setVaultDocuments([]);
     setActiveApplication(null);
+    setShowDemoGrants(false);
     setProjectDraft({ identificacao: '', objetivos: '', publico: '', execucao: '', orcamento: '', stepAtual: 1 });
     setCurrentView('home');
-    showToast('Dados locais excluídos', 'O armazenamento do navegador foi limpo.', 'info');
+    showToast('Dados locais excluídos', 'O armazenamento do navegador foi limpo com sucesso.', 'info');
   }, [showToast]);
 
   const value = useMemo(() => ({
@@ -759,6 +804,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setWorkspaceModalOpen,
     showWorkspaceButton,
     setShowWorkspaceButton,
+    showDemoGrants,
+    setShowDemoGrants,
     toast,
     showToast,
     projectDraft,
@@ -795,6 +842,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     workspaceModalOpen,
     showWorkspaceButton,
     setShowWorkspaceButton,
+    showDemoGrants,
+    setShowDemoGrants,
     toast,
     showToast,
     projectDraft,
